@@ -4,6 +4,8 @@ dotenv.config();
 import { Client, Events, GuildExplicitContentFilter, IntentsBitField } from 'discord.js';
 import { RaidEmbedder } from './raid-embedder.js';
 
+const RAIDS_DETAILS_MAP = new Map();
+
 // client initialization
 const client = new Client({
     intents: [
@@ -23,20 +25,30 @@ client.on(Events.InteractionCreate, async interaction => {
 
     if (interaction.commandName === 'rajdy') {
         const whatRaid = interaction.options.get("jakie-rajdy");
-        const when = interaction.options.get("kiedy");
+        const date = interaction.options.get("dzien");
+        const time = interaction.options.get("godzina");
         const duration = interaction.options.get("czas-trwania");
         const leader = interaction.options.get("lider");
         const gathering = interaction.options.get("gdzie-i-kiedy-zbiorka");
+        const requirements = interaction.options.get("wymagania");
     
-        const raidEmbedder = new RaidEmbedder(whatRaid, when, duration, leader, gathering);
-        interaction.reply({ embeds: [ raidEmbedder.loadEmbedder(interaction.user.globalName) ] })
-	} else if (interaction.commandName === 'ping') {
-        interaction.reply({ content: 'Secret Pong!' });
-        console.log(new Date());
-        await new Promise(r => setTimeout(r, 1000));
-        console.log(new Date());
-		interaction.editReply('Pong again!');
-    }
+        if (RAIDS_DETAILS_MAP.has(interaction.channel)) {
+            await interaction.deferReply();
+            const interactionWithEmbedder = RAIDS_DETAILS_MAP.get(interaction.channel);
+            const embedder = interactionWithEmbedder.embedder;
+            interactionWithEmbedder.interaction.editReply({ embeds: [ 
+                embedder.editEmbedderDetails(whatRaid, date, time, duration, leader, gathering, requirements) 
+            ] });
+            await interaction.deleteReply();
+        } else {
+            const raidEmbedder = new RaidEmbedder(whatRaid, date, time, duration, leader, gathering, requirements);
+            interaction.reply({ embeds: [ raidEmbedder.loadEmbedder(interaction.user.globalName) ] });
+            RAIDS_DETAILS_MAP.set(
+                interaction.channel, 
+                { "interaction": interaction, "embedder": raidEmbedder }
+            );
+        }
+	}
 
 })
 

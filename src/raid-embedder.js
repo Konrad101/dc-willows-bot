@@ -13,19 +13,27 @@ class RaidMember {
 
 
 class RaidEmbedder {
-    
+
+    DEFAULT_MAX_PLAYERS = 15;
+    DEFAULT_RESERVE_ROLE = "Warn";
+
     constructor(whatRaid,
-                when,
+                date,
+                time,
                 duration,
                 leader,
                 gathering,
-                maxPlayers=3,
-                reserveRole="Warn") {
+                requirements,
+                maxPlayers=this.DEFAULT_MAX_PLAYERS,
+                reserveRole=this.DEFAULT_RESERVE_ROLE) {
         this.whatRaid = whatRaid;
-        this.when = when;
+        this.date = date;
+        this.time = time;
         this.duration = duration;
         this.leader = leader;
         this.gathering = gathering;
+        this.requirements = requirements;
+
         this.maxPlayers = maxPlayers;
         this.reserveRole = reserveRole;
 
@@ -40,34 +48,33 @@ class RaidEmbedder {
     loadEmbedder(author) {
         this.embedder = new EmbedBuilder()
             .setColor(0x9400FF)
-            .setAuthor({ name: `${author} tworzy zapisy na rajdy!` })
-            .setTitle(`${this.when.value}\nmaraton rajdów: ${this.whatRaid.value}`)
-            .addFields(
-                { name: 'Ile czasu:', value: `${this.duration.value}`, inline: true },
-                { name: 'Lider:', value: `<@${this.leader.user.id}>`, inline: true },
-                { name: 'Zbiórka:', value: `${this.gathering.value}`, inline: true },
-                // TODO: add buffs: pot, tarot, pety
-                { name: 'Odpał:', value: `ByczQ nic nie bierz, będzie G` },
-                { name: '\u200B', value: '\u200B' },
-                { name: 'Lista graczy:', value: `${this.#formatRaidMembers(this.#getMainSquad())}` },
-                { name: 'Lista rezerwowa:', value: `${this.#formatRaidMembers(this.#getReserveSquad())}` },
-            );
-            
+            .setAuthor({ name: `${author} tworzy zapisy na rajdy!` });
+        this.#refreshEmbedder();
+
         return this.embedder;
     }
     
-    editRaidsDetails(whatRaid,
-                     when,
-                     duration,
-                     leader,
-                     gathering) {
-        this.whatRaid = whatRaid
-        this.when = when
-        this.duration = duration
-        this.leader = leader
-        this.gathering = gathering
+    editEmbedderDetails(whatRaid,
+                        date,
+                        time,
+                        duration,
+                        leader,
+                        gathering,
+                        requirements,
+                        maxPlayers=this.DEFAULT_MAX_PLAYERS,
+                        reserveRole=this.DEFAULT_RESERVE_ROLE) {
+        this.whatRaid = whatRaid;
+        this.date = date;
+        this.time = time;
+        this.duration = duration;
+        this.leader = leader;
+        this.gathering = gathering;
+        this.requirements = requirements;
+        this.maxPlayers = maxPlayers;
+        this.reserveRole = reserveRole;
 
-        // TODO: refresh embedding
+        this.#refreshEmbedder();
+        return this.embedder;
     }
     
     /**
@@ -94,6 +101,22 @@ class RaidEmbedder {
      */
     delete() {
 
+    }
+
+    #refreshEmbedder() {
+        this.embedder
+            .setTitle(`${this.date.value}, ${this.time.value}\nmaraton rajdów: ${this.whatRaid.value}`)
+            .setFields(
+                { name: 'Ile czasu:', value: `${this.duration.value}`, inline: true },
+                { name: 'Lider:', value: `<@${this.leader.user.id}>`, inline: true },
+                { name: 'Zbiórka:', value: `${this.gathering.value}`, inline: true },
+                // TODO: add buffs: pot, tarot, pety
+                { name: 'Odpał:', value: `ByczQ nic nie bierz, będzie G` },
+                { name: 'Wymagania:', value: `${this.requirements?.value}` },
+                { name: '\u200B', value: '\u200B' },
+                { name: 'Lista graczy:', value: `${this.#formatRaidMembers(this.#getMainSquad())}` },
+                { name: 'Lista rezerwowa:', value: `${this.#formatRaidMembers(this.#getReserveSquad())}` },
+            );
     }
 
     #formatRaidMembers(raidMembers) {
