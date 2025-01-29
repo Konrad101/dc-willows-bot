@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { REST, Routes } from 'discord.js';
-import { RAID_COMMAND_BUILDER } from './raid-command.js';
+import { RAID_COMMAND_BUILDER } from './raid/raid-command.js';
 
 dotenv.config();
 

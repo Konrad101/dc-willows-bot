@@ -1,4 +1,6 @@
 
+RESERVE_ROLES = [ "Warn" ];
+
 WARRIOR_SPECIALISTS = [
     ":warsp1:",
     ":warsp2:",
@@ -11,7 +13,7 @@ WARRIOR_SPECIALISTS = [
     ":warsp9:",
     ":warsp10:",
     ":warsp11:",
-]
+];
 
 ARCHER_SPECIALISTS = [
     ":archsp1:",
@@ -25,7 +27,7 @@ ARCHER_SPECIALISTS = [
     ":archsp9:",
     ":archsp10:",
     ":archsp11:",
-]
+];
 
 MAGE_SPECIALISTS = [
     ":magsp1:",
@@ -39,7 +41,7 @@ MAGE_SPECIALISTS = [
     ":magsp9:",
     ":magsp10:",
     ":magsp11:",
-]
+];
 
 MARTIAL_ARTIST_SPECIALISTS = [
     ":mswsp1:",
@@ -49,4 +51,4 @@ MARTIAL_ARTIST_SPECIALISTS = [
     ":mswsp5:",
     ":mswsp6:",
     ":mswsp7:",
-]
+];

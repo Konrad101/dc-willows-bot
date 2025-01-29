@@ -1,41 +1,13 @@
 import { EmbedBuilder } from 'discord.js';
+import { RaidMember } from './raid-member.js'
 
-export { RaidEmbedder, RaidMember };
-
-class RaidMember {
-    
-    constructor(userId, specialists, roles) {
-        this.userId = userId;
-        this.specialists = specialists;
-        this.roles = roles;
-    }
-}
+export { RaidEmbedder };
 
 
 class RaidEmbedder {
 
-    DEFAULT_MAX_PLAYERS = 15;
-    DEFAULT_RESERVE_ROLE = "Warn";
-
-    constructor(whatRaid,
-                date,
-                time,
-                duration,
-                leader,
-                gathering,
-                requirements,
-                maxPlayers=this.DEFAULT_MAX_PLAYERS,
-                reserveRole=this.DEFAULT_RESERVE_ROLE) {
-        this.whatRaid = whatRaid;
-        this.date = date;
-        this.time = time;
-        this.duration = duration;
-        this.leader = leader;
-        this.gathering = gathering;
-        this.requirements = requirements;
-
-        this.maxPlayers = maxPlayers;
-        this.reserveRole = reserveRole;
+    constructor(raidParameters) {
+        this.raidParameters = raidParameters;
 
         // this.members = [];
         this.members = [ 
@@ -49,31 +21,14 @@ class RaidEmbedder {
         this.embedder = new EmbedBuilder()
             .setColor(0x9400FF)
             .setAuthor({ name: `${author} tworzy zapisy na rajdy!` });
-        this.#refreshEmbedder();
+        this.#applyRaidParamsToEmbedder();
 
         return this.embedder;
     }
     
-    editEmbedderDetails(whatRaid,
-                        date,
-                        time,
-                        duration,
-                        leader,
-                        gathering,
-                        requirements,
-                        maxPlayers=this.DEFAULT_MAX_PLAYERS,
-                        reserveRole=this.DEFAULT_RESERVE_ROLE) {
-        this.whatRaid = whatRaid;
-        this.date = date;
-        this.time = time;
-        this.duration = duration;
-        this.leader = leader;
-        this.gathering = gathering;
-        this.requirements = requirements;
-        this.maxPlayers = maxPlayers;
-        this.reserveRole = reserveRole;
-
-        this.#refreshEmbedder();
+    updateEmbedder(raidParameters) {
+        this.raidParameters = raidParameters;
+        this.#applyRaidParamsToEmbedder();
         return this.embedder;
     }
     
@@ -103,16 +58,16 @@ class RaidEmbedder {
 
     }
 
-    #refreshEmbedder() {
+    #applyRaidParamsToEmbedder() {
         this.embedder
-            .setTitle(`${this.date.value}, ${this.time.value}\nmaraton rajdów: ${this.whatRaid.value}`)
+            .setTitle(`${this.raidParameters.date.value}, ${this.raidParameters.time.value}\nmaraton rajdów: ${this.raidParameters.whatRaid.value}`)
             .setFields(
-                { name: 'Ile czasu:', value: `${this.duration.value}`, inline: true },
-                { name: 'Lider:', value: `<@${this.leader.user.id}>`, inline: true },
-                { name: 'Zbiórka:', value: `${this.gathering.value}`, inline: true },
+                { name: 'Ile czasu:', value: `${this.raidParameters.duration.value}`, inline: true },
+                { name: 'Lider:', value: `<@${this.raidParameters.leader.user.id}>`, inline: true },
+                { name: 'Zbiórka:', value: `${this.raidParameters.gathering.value}`, inline: true },
                 // TODO: add buffs: pot, tarot, pety
                 { name: 'Odpał:', value: `ByczQ nic nie bierz, będzie G` },
-                { name: 'Wymagania:', value: `${this.requirements?.value}` },
+                { name: 'Wymagania:', value: `${this.raidParameters.requirements?.value}` },
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Lista graczy:', value: `${this.#formatRaidMembers(this.#getMainSquad())}` },
                 { name: 'Lista rezerwowa:', value: `${this.#formatRaidMembers(this.#getReserveSquad())}` },
@@ -121,7 +76,7 @@ class RaidEmbedder {
 
     #formatRaidMembers(raidMembers) {
         if (raidMembers.length === 0) {
-            return `\`1. \`➜\` ${this.maxPlayers}.\` - Brak graczy`;
+            return `\`1. \`➜\` ${this.raidParameters.maxPlayers}.\` - Brak graczy`;
         }
 
         let formattedMembers = "";
@@ -142,21 +97,21 @@ class RaidEmbedder {
 
             formattedMembers += "\n";
         }
-        if (raidMembers.length < this.maxPlayers) {
-            if (raidMembers.length === this.maxPlayers - 1) {
+        if (raidMembers.length < this.raidParameters.maxPlayers) {
+            if (raidMembers.length === this.raidParameters.maxPlayers - 1) {
                 formattedMembers += `\`${raidMembers.length + 1}.\` - Brak ostatniego gracza`;
             } else {
-                formattedMembers += `\`${raidMembers.length + 1}. \`➜\` ${this.maxPlayers}.\` - Brak graczy`;
+                formattedMembers += `\`${raidMembers.length + 1}. \`➜\` ${this.raidParameters.maxPlayers}.\` - Brak graczy`;
             }
         }
         return formattedMembers;
     }
 
     #getMainSquad() {
-        return this.members.filter(member => !member.roles.includes(this.reserveRole));
+        return this.members.filter(member => !member.roles.some(r => this.raidParameters.reserveRoles.includes(r)));
     }
 
     #getReserveSquad() {
-        return this.members.filter(member => member.roles.includes(this.reserveRole));
+        return this.members.filter(member => member.roles.some(r => this.raidParameters.reserveRoles.includes(r)));
     }
 }
