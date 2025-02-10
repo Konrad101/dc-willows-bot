@@ -1,5 +1,4 @@
 import { EmbedBuilder } from 'discord.js';
-import { RaidMember } from './raid-member.js'
 
 export { RaidEmbedder };
 
@@ -9,11 +8,11 @@ class RaidEmbedder {
     constructor(raidParameters) {
         this.raidParameters = raidParameters;
 
-        // this.members = [];
-        this.members = [ 
-            new RaidMember("739620586896228424", [ ":rocket:", ":fire:" ], [ "Maratończyk+" ]),
-            new RaidMember("739620586896228424", [ ":first_place:" ], [ "Maratończyk+" ]),
-        ];
+        this.members = [];
+        // this.members = [ 
+        //     new RaidMember("739620586896228424", [ "<:warsp1:1292183221584400617>", ":fire:" ], [ "Maratończyk+" ]),
+        //     new RaidMember("739620586896228424", [ ":first_place:" ], [ "Maratończyk+" ]),
+        // ];
         this.embedder = null;
     }
 
@@ -21,13 +20,15 @@ class RaidEmbedder {
         this.embedder = new EmbedBuilder()
             .setColor(0x9400FF)
             .setAuthor({ name: `${author} tworzy zapisy na rajdy!` });
-        this.#applyRaidParamsToEmbedder();
-
-        return this.embedder;
+        return this.refreshEmbedder();
     }
     
     updateEmbedder(raidParameters) {
         this.raidParameters = raidParameters;
+        return this.refreshEmbedder();
+    }
+
+    refreshEmbedder() {
         this.#applyRaidParamsToEmbedder();
         return this.embedder;
     }

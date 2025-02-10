@@ -9,8 +9,8 @@ class RaidParameters {
                 leader,
                 gathering,
                 requirements,
-                maxPlayers=15,
-                reserveRoles=[ "Warn" ]) {
+                maxPlayers,
+                reserveRoles) {
         this.whatRaid = whatRaid;
         this.date = date;
         this.time = time;

@@ -7,4 +7,14 @@ class RaidMember {
         this.specialists = specialists;
         this.roles = roles;
     }
+
+    static fromInteraction(interaction) {
+        return new RaidMember(
+            interaction.user.id,
+            interaction.values,
+            interaction.member.roles.cache.map(role => role.name),
+        );
+    }
 }
+
+export const memberFromInteraction = RaidMember.fromInteraction;
