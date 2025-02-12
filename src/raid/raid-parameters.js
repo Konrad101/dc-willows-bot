@@ -6,7 +6,7 @@ class RaidParameters {
                 date,
                 time,
                 duration,
-                leader,
+                leaderId,
                 gathering,
                 requirements,
                 maxPlayers,
@@ -15,7 +15,7 @@ class RaidParameters {
         this.date = date;
         this.time = time;
         this.duration = duration;
-        this.leader = leader;
+        this.leaderId = leaderId;
         this.gathering = gathering;
         this.requirements = requirements;
         this.maxPlayers = maxPlayers;

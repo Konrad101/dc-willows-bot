@@ -24,6 +24,7 @@ class RaidMemberSelectMenu {
             const emoji = this.specialistsEmojis[spNumber - 1];
             options.push(
                 new StringSelectMenuOptionBuilder()
+                    // TODO: get label from config file
                     .setLabel(`SP ${spNumber}`)
                     .setValue(`<:${emoji.name}:${emoji.id}>`)
                     .setEmoji({

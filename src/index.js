@@ -4,7 +4,8 @@ dotenv.config();
 import { Client, Events, IntentsBitField } from 'discord.js';
 import { 
     RaidService, WARRIOR_SELECT_MENU_CUSTOM_ID, ARCHER_SELECT_MENU_CUSTOM_ID,
-    MAGE_SELECT_MENU_CUSTOM_ID, MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID  
+    MAGE_SELECT_MENU_CUSTOM_ID, MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID,
+    SIGN_BUTTON_CUSTOM_ID
 } from './raid/raid-service.js';
 
 const raidService = new RaidService();
@@ -24,7 +25,7 @@ client.on(Events.ClientReady, client => {
 });
 
 client.on(Events.InteractionCreate, async interaction => {
-    if (!interaction.isChatInputCommand() && !interaction.isStringSelectMenu()) return;
+    if (!interaction.isChatInputCommand() && !interaction.isStringSelectMenu() && !interaction.isButton()) return;
 
     if (interaction.commandName === 'rajdy') {
         raidService.handleRaidInteraction(interaction);
@@ -34,6 +35,8 @@ client.on(Events.InteractionCreate, async interaction => {
         || interaction.customId === MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID) {
 
         raidService.addPlayerFromInteraction(interaction);
+    } else if (interaction.customId === SIGN_BUTTON_CUSTOM_ID) {
+        raidService.displaySpecialistsSelectMenus(interaction);
     }
 
 })

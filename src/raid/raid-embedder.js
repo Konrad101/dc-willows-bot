@@ -61,14 +61,14 @@ class RaidEmbedder {
 
     #applyRaidParamsToEmbedder() {
         this.embedder
-            .setTitle(`${this.raidParameters.date.value}, ${this.raidParameters.time.value}\nmaraton rajdów: ${this.raidParameters.whatRaid.value}`)
+            .setTitle(`${this.raidParameters.date}, ${this.raidParameters.time}\nmaraton rajdów: ${this.raidParameters.whatRaid}`)
             .setFields(
-                { name: 'Ile czasu:', value: `${this.raidParameters.duration.value}`, inline: true },
-                { name: 'Lider:', value: `<@${this.raidParameters.leader.user.id}>`, inline: true },
-                { name: 'Zbiórka:', value: `${this.raidParameters.gathering.value}`, inline: true },
+                { name: 'Ile czasu:', value: `${this.raidParameters.duration}`, inline: true },
+                { name: 'Lider:', value: `<@${this.raidParameters.leaderId}>`, inline: true },
+                { name: 'Zbiórka:', value: `${this.raidParameters.gathering}`, inline: true },
                 // TODO: add buffs: pot, tarot, pety
-                { name: 'Odpał:', value: `ByczQ nic nie bierz, będzie G` },
-                { name: 'Wymagania:', value: `${this.raidParameters.requirements?.value}` },
+                { name: 'Odpał:', value: `Poty, tarot, pety` },
+                { name: 'Wymagania:', value: `${this.raidParameters.requirements}` },
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Lista graczy:', value: `${this.#formatRaidMembers(this.#getMainSquad())}` },
                 { name: 'Lista rezerwowa:', value: `${this.#formatRaidMembers(this.#getReserveSquad())}` },
