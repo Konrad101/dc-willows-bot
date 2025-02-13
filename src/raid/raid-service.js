@@ -12,14 +12,15 @@ import {
 export { 
     RaidService, WARRIOR_SELECT_MENU_CUSTOM_ID, ARCHER_SELECT_MENU_CUSTOM_ID, 
     MAGE_SELECT_MENU_CUSTOM_ID, MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID,
-    SIGN_BUTTON_CUSTOM_ID
+    SIGN_BUTTON_CUSTOM_ID, UNSUBSCRIBE_BUTTON_CUSTOM_ID
 };
 
 const WARRIOR_SELECT_MENU_CUSTOM_ID = "warriorSelectMenu";
 const ARCHER_SELECT_MENU_CUSTOM_ID = "archerSelectMenu";
 const MAGE_SELECT_MENU_CUSTOM_ID = "mageSelectMenu";
 const MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID = "martialArtistSelectMenu";
-const SIGN_BUTTON_CUSTOM_ID = "signToRaidButton";
+const SIGN_BUTTON_CUSTOM_ID = "signUpToRaidButton";
+const UNSUBSCRIBE_BUTTON_CUSTOM_ID = "unsubscribeFromRaidButton";
 
 class RaidService {
 
@@ -30,7 +31,6 @@ class RaidService {
     }
 
     async handleRaidInteraction(interaction) {
-        // TODO: add buttons and then display select-menus per user
         const raidParameters = new RaidParameters(
             interaction.options.get("jakie-rajdy").value,
             interaction.options.get("dzien").value,
@@ -63,12 +63,19 @@ class RaidService {
         }
 
         await interaction.deferReply();
-        raidDetails.embedder.addMember(
+        const memberAdded = raidDetails.embedder.addMember(
             memberFromInteraction(interaction));
-        raidDetails.interaction.editReply({ 
-            embeds: [ raidDetails.embedder.refreshEmbedder() ] 
-        });
-        interaction.webhook.deleteMessage(interaction.message);
+        if (memberAdded) {
+            raidDetails.interaction.editReply({ 
+                embeds: [ raidDetails.embedder.refreshEmbedder() ] 
+            });
+            interaction.webhook.deleteMessage(interaction.message);
+        } else {
+            interaction.webhook.editMessage(interaction.message, {
+                content: "Brak wolnych miejsc, żeby zapisać się na rajd!",
+                components: [],
+            });
+        }
         await interaction.deleteReply();
     }
 
@@ -89,6 +96,21 @@ class RaidService {
         })
     }
 
+    async unsubscribeFromRaid(interaction) {
+        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
+        if (raidDetails === undefined) {
+            console.log(`Could not find details for channel: ${interaction.channel}`)
+            return;
+        }
+
+        await interaction.deferReply();
+        raidDetails.embedder.removeMember(interaction.user.id);
+        raidDetails.interaction.editReply({ 
+            embeds: [ raidDetails.embedder.refreshEmbedder() ] 
+        });
+        await interaction.deleteReply();
+    }
+
     async #handleRaidCreation(interaction, raidParameters) {
         const raidEmbedder = new RaidEmbedder(raidParameters);
         
@@ -96,9 +118,13 @@ class RaidService {
             components: [ 
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId("signToRaidButton")
+                        .setCustomId(SIGN_BUTTON_CUSTOM_ID)
                         .setLabel('Zapisz się')
-                        .setStyle(ButtonStyle.Success)
+                        .setStyle(ButtonStyle.Success),
+                    new ButtonBuilder()
+                        .setCustomId(UNSUBSCRIBE_BUTTON_CUSTOM_ID)
+                        .setLabel('Wypisz się')
+                        .setStyle(ButtonStyle.Danger)
                 ),
             ],
             embeds: [ raidEmbedder.loadEmbedder(interaction.user.globalName) ],

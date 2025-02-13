@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 
-export const RAID_COMMAND_BUILDER = new SlashCommandBuilder()
+export const RAID_CREATION_COMMAND_BUILDER = new SlashCommandBuilder()
     .setName('rajdy')
     .setDescription('Tworzy listę z zapisami na rajdy')
     .addStringOption(option => 

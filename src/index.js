@@ -5,7 +5,7 @@ import { Client, Events, IntentsBitField } from 'discord.js';
 import { 
     RaidService, WARRIOR_SELECT_MENU_CUSTOM_ID, ARCHER_SELECT_MENU_CUSTOM_ID,
     MAGE_SELECT_MENU_CUSTOM_ID, MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID,
-    SIGN_BUTTON_CUSTOM_ID
+    SIGN_BUTTON_CUSTOM_ID, UNSUBSCRIBE_BUTTON_CUSTOM_ID
 } from './raid/raid-service.js';
 
 const raidService = new RaidService();
@@ -37,6 +37,8 @@ client.on(Events.InteractionCreate, async interaction => {
         raidService.addPlayerFromInteraction(interaction);
     } else if (interaction.customId === SIGN_BUTTON_CUSTOM_ID) {
         raidService.displaySpecialistsSelectMenus(interaction);
+    } else if (interaction.customId === UNSUBSCRIBE_BUTTON_CUSTOM_ID) {
+        raidService.unsubscribeFromRaid(interaction);
     }
 
 })

@@ -40,8 +40,18 @@ class RaidEmbedder {
         return this.members;
     }
 
+    /**
+     * Method checks if given member can be added to list:
+     * when member was added => returns true,
+     * when member could not be added => returns false.
+     */
     addMember(raidMember) {
+        if (this.members.length >= this.raidParameters.maxPlayers) {
+            return false;
+        }
+
         this.members.push(raidMember);
+        return true;
     }
 
     removeMember(raidMember) {
@@ -60,13 +70,13 @@ class RaidEmbedder {
     }
 
     #applyRaidParamsToEmbedder() {
+        // TODO: determine if fields are OK
         this.embedder
             .setTitle(`${this.raidParameters.date}, ${this.raidParameters.time}\nmaraton rajdów: ${this.raidParameters.whatRaid}`)
             .setFields(
                 { name: 'Ile czasu:', value: `${this.raidParameters.duration}`, inline: true },
                 { name: 'Lider:', value: `<@${this.raidParameters.leaderId}>`, inline: true },
                 { name: 'Zbiórka:', value: `${this.raidParameters.gathering}`, inline: true },
-                // TODO: add buffs: pot, tarot, pety
                 { name: 'Odpał:', value: `Poty, tarot, pety` },
                 { name: 'Wymagania:', value: `${this.raidParameters.requirements}` },
                 { name: '\u200B', value: '\u200B' },
