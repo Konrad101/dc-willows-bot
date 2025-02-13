@@ -31,6 +31,7 @@ class RaidService {
     }
 
     async handleRaidInteraction(interaction) {
+        // TODO: check user role - if have correct permissions
         const raidParameters = new RaidParameters(
             interaction.options.get("jakie-rajdy").value,
             interaction.options.get("dzien").value,
@@ -108,6 +109,39 @@ class RaidService {
         raidDetails.interaction.editReply({ 
             embeds: [ raidDetails.embedder.refreshEmbedder() ] 
         });
+        await interaction.deleteReply();
+    }
+
+    async kickPlayerFromRaid(interaction) {
+        // TODO: check user role - if have correct permissions
+        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
+        if (raidDetails === undefined) {
+            console.log(`Could not find details for channel: ${interaction.channel}`)
+            return;
+        }
+
+        await interaction.deferReply();
+        const userToKick = interaction.options.get("osoba").user;
+        raidDetails.embedder.removeMember(userToKick.id);
+        raidDetails.interaction.editReply({
+            embeds: [ raidDetails.embedder.refreshEmbedder() ] 
+        });
+        console.log(`${interaction.user.globalName} kicks from raid: ${userToKick.globalName} 
+            on channel: ${interaction.channel.name}`);
+        await interaction.deleteReply();
+    }
+
+    async cancelRaid(interaction) {
+        // TODO: check if user has correct role
+        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
+        if (raidDetails === undefined) {
+            console.log(`Could not find details for channel: ${interaction.channel}`)
+            return;
+        }
+
+        await interaction.deferReply();
+        this.RAIDS_DETAILS_MAP.delete(interaction.channel);
+        raidDetails.interaction.deleteReply();
         await interaction.deleteReply();
     }
 

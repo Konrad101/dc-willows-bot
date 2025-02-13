@@ -2,6 +2,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Client, Events, IntentsBitField } from 'discord.js';
+import { RAID_CREATION_COMMAND_NAME } from './raid/commands/raid-creation-command.js'
+import { RAID_CANCELLATION_COMMAND_NAME } from './raid/commands/raid-cancellation-command.js'
+import { RAID_MEMBER_DELETION_COMMAND_NAME } from './raid/commands/raid-member-deletion-command.js'
 import { 
     RaidService, WARRIOR_SELECT_MENU_CUSTOM_ID, ARCHER_SELECT_MENU_CUSTOM_ID,
     MAGE_SELECT_MENU_CUSTOM_ID, MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID,
@@ -27,9 +30,13 @@ client.on(Events.ClientReady, client => {
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand() && !interaction.isStringSelectMenu() && !interaction.isButton()) return;
 
-    if (interaction.commandName === 'rajdy') {
+    if (interaction.commandName === RAID_CREATION_COMMAND_NAME) {
         raidService.handleRaidInteraction(interaction);
-	} else if (interaction.customId === WARRIOR_SELECT_MENU_CUSTOM_ID 
+	} else if (interaction.commandName === RAID_CANCELLATION_COMMAND_NAME) {
+        raidService.cancelRaid(interaction);
+    } else if (interaction.commandName === RAID_MEMBER_DELETION_COMMAND_NAME) {
+        raidService.kickPlayerFromRaid(interaction);
+    } else if (interaction.customId === WARRIOR_SELECT_MENU_CUSTOM_ID 
         || interaction.customId === ARCHER_SELECT_MENU_CUSTOM_ID 
         || interaction.customId === MAGE_SELECT_MENU_CUSTOM_ID
         || interaction.customId === MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID) {
