@@ -53,6 +53,8 @@ class RaidService {
         );
 
         if (this.RAIDS_DETAILS_MAP.has(interaction.channel)) {
+            console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
+                `edits raids on channel: ${interaction.channel.name} (${interaction.channel})`);
             const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
             await interaction.deferReply();
             raidDetails.interaction.editReply({
@@ -60,6 +62,8 @@ class RaidService {
             });
             await interaction.deleteReply();
         } else {
+            console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
+                `creates raids on channel: ${interaction.channel.name} (${interaction.channel})`);
             this.#handleRaidCreation(interaction, raidParameters);
         }
     }
@@ -81,6 +85,8 @@ class RaidService {
             return;
         }
 
+        console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
+                `is trying to sign to raids on channel: ${interaction.channel.name} (${interaction.channel})`);
         await interaction.deferReply();
         const memberAdded = raidDetails.embedder.addMember(
             memberFromInteraction(interaction));
@@ -133,6 +139,8 @@ class RaidService {
             return;
         }
 
+        console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
+                `unsubscribes from raids on channel: ${interaction.channel.name} (${interaction.channel})`);
         await interaction.deferReply();
         raidDetails.embedder.removeMember(interaction.user.id);
         raidDetails.interaction.editReply({ 
@@ -158,15 +166,15 @@ class RaidService {
             return;
         }
 
+        console.log(`${interaction.user.globalName} (${interaction.user.id})` +
+            ` kicks from raid: ${userToKick.globalName} (${userToKick.id})` +
+            ` on channel: ${interaction.channel.name}`);
         await interaction.deferReply();
         const userToKick = interaction.options.get("osoba").user;
         raidDetails.embedder.removeMember(userToKick.id);
         raidDetails.interaction.editReply({
             embeds: [ raidDetails.embedder.refreshEmbedder() ] 
         });
-        console.log(`${interaction.user.globalName} (${interaction.user.id})` +
-            ` kicks from raid: ${userToKick.globalName} (${userToKick.id})` +
-            ` on channel: ${interaction.channel.name}`);
         await interaction.deleteReply();
     }
 
@@ -189,6 +197,10 @@ class RaidService {
             return;
         }
 
+        console.log(
+            `User: ${interaction.user.globalName} (${interaction.user.id}) ` +
+            `cancelled raids on channel: ${interaction.channel.name} (${interaction.channel})`
+        );
         await interaction.deferReply();
         this.RAIDS_DETAILS_MAP.delete(interaction.channel);
         raidDetails.interaction.deleteReply();
