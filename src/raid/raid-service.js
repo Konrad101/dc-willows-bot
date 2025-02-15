@@ -26,6 +26,7 @@ class RaidService {
 
     RAIDS_DETAILS_MAP = new Map();
 
+    // TODO: inject raid registry/repository?
     constructor() {
 
     }
@@ -66,7 +67,10 @@ class RaidService {
     async addPlayerFromInteraction(interaction) {
         const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
         if (raidDetails === undefined) {
-            console.log(`Could not find details for channel: ${interaction.channel}`)
+            console.log(`Could not find details to sign for raids for channel: ${interaction.channel}, ` +
+                `trigger user id: ${interaction.user.id}`);
+            await interaction.deferReply();
+            await interaction.deleteReply();
             return;
         }
         if (!await this.#interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
@@ -122,7 +126,10 @@ class RaidService {
     async unsubscribeFromRaid(interaction) {
         const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
         if (raidDetails === undefined) {
-            console.log(`Could not find details for channel: ${interaction.channel}`)
+            console.log(`Could not find details to unsibscribe from raid for channel: ${interaction.channel}, ` +
+                `trigger user id: ${interaction.user.id}`);
+            await interaction.deferReply();
+            await interaction.deleteReply();
             return;
         }
 
@@ -137,7 +144,10 @@ class RaidService {
     async kickPlayerFromRaid(interaction) {
         const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
         if (raidDetails === undefined) {
-            console.log(`Could not find details for channel: ${interaction.channel}`)
+            console.log(`Could not find details to kick raid member for channel: ${interaction.channel}, ` +
+                `trigger user id: ${interaction.user.id}`);
+            await interaction.deferReply();
+            await interaction.deleteReply();
             return;
         }
         if (!await this.#interactionUserHasValidRoles(interaction, RAID_MANAGEMENT_ROLES)) {
