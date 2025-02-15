@@ -5,8 +5,8 @@ import { RaidEmbedder } from './raid-embedder.js';
 import { memberFromInteraction } from './raid-member.js';
 import { RaidMemberSelectMenu } from './raid-member-select-menu.js';
 import { 
-    RESERVE_ROLES, WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, 
-    MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU
+    RESERVE_ROLES, RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, 
+    WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU
 } from '../config.js';
 
 export { 
@@ -31,7 +31,14 @@ class RaidService {
     }
 
     async handleRaidInteraction(interaction) {
-        // TODO: check user role - if have correct permissions
+        if (!await this.#interactionUserHasValidRoles(interaction, RAID_MANAGEMENT_ROLES)) {
+            interaction.reply({
+                content: "Brak uprawnień do tworzenia/edycji zapisów na rajdy!",
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
+
         const raidParameters = new RaidParameters(
             interaction.options.get("jakie-rajdy").value,
             interaction.options.get("dzien").value,
@@ -62,6 +69,13 @@ class RaidService {
             console.log(`Could not find details for channel: ${interaction.channel}`)
             return;
         }
+        if (!await this.#interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
+            interaction.reply({
+                content: "Brak uprawnień do zapisania się na rajdy!",
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
 
         await interaction.deferReply();
         const memberAdded = raidDetails.embedder.addMember(
@@ -81,6 +95,14 @@ class RaidService {
     }
 
     async displaySpecialistsSelectMenus(interaction) {
+        if (!await this.#interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
+            interaction.reply({
+                content: "Brak uprawnień do zapisania się na rajdy!",
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
+
         const warriorSelectMenu = new RaidMemberSelectMenu(WARRIOR_SELECT_MENU);
         const archerSelectMenu = new RaidMemberSelectMenu(ARCHER_SELECT_MENU);
         const mageSelectMenu = new RaidMemberSelectMenu(MAGE_SELECT_MENU);
@@ -113,10 +135,16 @@ class RaidService {
     }
 
     async kickPlayerFromRaid(interaction) {
-        // TODO: check user role - if have correct permissions
         const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
         if (raidDetails === undefined) {
             console.log(`Could not find details for channel: ${interaction.channel}`)
+            return;
+        }
+        if (!await this.#interactionUserHasValidRoles(interaction, RAID_MANAGEMENT_ROLES)) {
+            interaction.reply({
+                content: "Brak uprawnień do wyrzucenia gracza z rajdów!",
+                flags: MessageFlags.Ephemeral,
+            });
             return;
         }
 
@@ -126,16 +154,28 @@ class RaidService {
         raidDetails.interaction.editReply({
             embeds: [ raidDetails.embedder.refreshEmbedder() ] 
         });
-        console.log(`${interaction.user.globalName} kicks from raid: ${userToKick.globalName} 
-            on channel: ${interaction.channel.name}`);
+        console.log(`${interaction.user.globalName} (${interaction.user.id})` +
+            ` kicks from raid: ${userToKick.globalName} (${userToKick.id})` +
+            ` on channel: ${interaction.channel.name}`);
         await interaction.deleteReply();
     }
 
     async cancelRaid(interaction) {
-        // TODO: check if user has correct role
         const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
         if (raidDetails === undefined) {
-            console.log(`Could not find details for channel: ${interaction.channel}`)
+            console.log(
+                `Could not find details to cancel raid for channel: ${interaction.channel}, ` +
+                `trigger user id: ${interaction.user.id}`
+            );
+            await interaction.deferReply();
+            await interaction.deleteReply();
+            return;
+        }
+        if (!await this.#interactionUserHasValidRoles(interaction, RAID_MANAGEMENT_ROLES)) {
+            interaction.reply({
+                content: "Brak uprawnień do anulowania rajdów!",
+                flags: MessageFlags.Ephemeral,
+            });
             return;
         }
 
@@ -143,6 +183,17 @@ class RaidService {
         this.RAIDS_DETAILS_MAP.delete(interaction.channel);
         raidDetails.interaction.deleteReply();
         await interaction.deleteReply();
+    }
+
+    /**
+     * Checks whether the user provided in @param {*} interaction 
+     * has at least one role that is also included in @param {*} validRoles.
+     * If user contains valid role, returns true, otherwise returns false.
+     */
+    async #interactionUserHasValidRoles(interaction, validRoles) {
+        return interaction.member.roles.cache
+            .map(role => role.name)
+            .some(roleName => validRoles.includes(roleName));
     }
 
     async #handleRaidCreation(interaction, raidParameters) {

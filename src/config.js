@@ -1,12 +1,25 @@
 
 export { 
-    RESERVE_ROLES,
+    RESERVE_ROLES, RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES,
     WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU,
  };
 
-// -------------------------------------
+// ----------------------------
+//  Konfiguracja dostępu i ról. 
+
 //  Role, które będą trafiać na rezerwę. 
 const RESERVE_ROLES = [ "Warn" ];
+
+//  Role do zarządzania rajdem:
+//  - tworzenie rajdów
+//  - edycja rajdów
+//  - anulowanie rajdów
+//  - wyrzucanie osób z rajdów
+const RAID_MANAGEMENT_ROLES = [ "MaratończykPlus", "Admin" ]; 
+
+// Rola pozwalająca się zapisać na rajd.
+const SIGN_TO_RAID_ROLES = [ "maratończyk", "MaratończykPlus" ];
+
 
 // -------------------------------------------
 //  Konfiguracja do listy z SP'kami do wyboru.
