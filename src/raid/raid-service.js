@@ -136,6 +136,10 @@ class RaidService {
             await interaction.deferReply();
             await interaction.deleteReply();
             return;
+        } else if (!raidDetails.hasRaidMember(interaction.user.id)) {
+            await interaction.deferReply();
+            await interaction.deleteReply();
+            return;
         }
 
         console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
