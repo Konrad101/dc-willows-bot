@@ -28,7 +28,7 @@ class RaidService {
 
     // TODO: inject raid registry/repository?
     constructor() {
-
+        // this.raidRepository = raidRepository;
     }
 
     async handleRaidInteraction(interaction) {
@@ -51,27 +51,26 @@ class RaidService {
             interaction.options.get("max-liczba-osob")?.value ?? 15,
             RESERVE_ROLES,
         );
-
-        if (this.RAIDS_DETAILS_MAP.has(interaction.channel)) {
+        if (this.RAIDS_DETAILS_MAP.has(interaction.channel.id)) {
             console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
-                `edits raids on channel: ${interaction.channel.name} (${interaction.channel})`);
-            const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
+                `edits raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
+            const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel.id);
             await interaction.deferReply();
-            raidDetails.interaction.editReply({
+            raidDetails.messageWithEmbedder.edit({
                 embeds: [ raidDetails.embedder.updateEmbedder(raidParameters) ] 
             });
             await interaction.deleteReply();
         } else {
             console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
-                `creates raids on channel: ${interaction.channel.name} (${interaction.channel})`);
+                `creates raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
             this.#handleRaidCreation(interaction, raidParameters);
         }
     }
 
     async addPlayerFromInteraction(interaction) {
-        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
+        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel.id);
         if (raidDetails === undefined) {
-            console.log(`Could not find details to sign for raids for channel: ${interaction.channel}, ` +
+            console.log(`Could not find details to sign for raids for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
             await interaction.deferReply();
             await interaction.deleteReply();
@@ -86,12 +85,12 @@ class RaidService {
         }
 
         console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
-                `is trying to sign to raids on channel: ${interaction.channel.name} (${interaction.channel})`);
+                `is trying to sign to raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         await interaction.deferReply();
         const memberAdded = raidDetails.embedder.addMember(
             memberFromInteraction(interaction));
         if (memberAdded) {
-            raidDetails.interaction.editReply({ 
+            raidDetails.messageWithEmbedder.edit({ 
                 embeds: [ raidDetails.embedder.refreshEmbedder() ] 
             });
             interaction.webhook.deleteMessage(interaction.message);
@@ -126,13 +125,13 @@ class RaidService {
                 new ActionRowBuilder().addComponents(martialArtistSelectMenu.loadSelectMenu(MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID)),
             ],
             flags: MessageFlags.Ephemeral,
-        })
+        });
     }
 
     async unsubscribeFromRaid(interaction) {
-        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
+        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel.id);
         if (raidDetails === undefined) {
-            console.log(`Could not find details to unsibscribe from raid for channel: ${interaction.channel}, ` +
+            console.log(`Could not find details to unsibscribe from raid for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
             await interaction.deferReply();
             await interaction.deleteReply();
@@ -140,19 +139,19 @@ class RaidService {
         }
 
         console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
-                `unsubscribes from raids on channel: ${interaction.channel.name} (${interaction.channel})`);
+                `unsubscribes from raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         await interaction.deferReply();
         raidDetails.embedder.removeMember(interaction.user.id);
-        raidDetails.interaction.editReply({ 
+        raidDetails.messageWithEmbedder.edit({ 
             embeds: [ raidDetails.embedder.refreshEmbedder() ] 
         });
         await interaction.deleteReply();
     }
 
     async kickPlayerFromRaid(interaction) {
-        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
+        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel.id);
         if (raidDetails === undefined) {
-            console.log(`Could not find details to kick raid member for channel: ${interaction.channel}, ` +
+            console.log(`Could not find details to kick raid member for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
             await interaction.deferReply();
             await interaction.deleteReply();
@@ -166,23 +165,23 @@ class RaidService {
             return;
         }
 
-        console.log(`${interaction.user.globalName} (${interaction.user.id})` +
-            ` kicks from raid: ${userToKick.globalName} (${userToKick.id})` +
-            ` on channel: ${interaction.channel.name}`);
         await interaction.deferReply();
         const userToKick = interaction.options.get("osoba").user;
+        console.log(`${interaction.user.globalName} (${interaction.user.id})` +
+            ` kicks from raid: ${userToKick.globalName} (${userToKick.id})` +
+            ` on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         raidDetails.embedder.removeMember(userToKick.id);
-        raidDetails.interaction.editReply({
+        raidDetails.messageWithEmbedder.edit({
             embeds: [ raidDetails.embedder.refreshEmbedder() ] 
         });
         await interaction.deleteReply();
     }
 
     async cancelRaid(interaction) {
-        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel);
+        const raidDetails = this.RAIDS_DETAILS_MAP.get(interaction.channel.id);
         if (raidDetails === undefined) {
             console.log(
-                `Could not find details to cancel raid for channel: ${interaction.channel}, ` +
+                `Could not find details to cancel raid for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`
             );
             await interaction.deferReply();
@@ -199,11 +198,11 @@ class RaidService {
 
         console.log(
             `User: ${interaction.user.globalName} (${interaction.user.id}) ` +
-            `cancelled raids on channel: ${interaction.channel.name} (${interaction.channel})`
+            `cancelled raids on channel: ${interaction.channel.name} (${interaction.channel.id})`
         );
         await interaction.deferReply();
-        this.RAIDS_DETAILS_MAP.delete(interaction.channel);
-        raidDetails.interaction.deleteReply();
+        this.RAIDS_DETAILS_MAP.delete(interaction.channel.id);
+        raidDetails.messageWithEmbedder.delete();
         await interaction.deleteReply();
     }
 
@@ -221,8 +220,8 @@ class RaidService {
     async #handleRaidCreation(interaction, raidParameters) {
         const raidEmbedder = new RaidEmbedder(raidParameters);
         
-        await interaction.reply({
-            components: [ 
+        const response = await interaction.reply({
+            components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId(SIGN_BUTTON_CUSTOM_ID)
@@ -235,12 +234,13 @@ class RaidService {
                 ),
             ],
             embeds: [ raidEmbedder.loadEmbedder(interaction.user.globalName) ],
+            withResponse: true,
         });
 
         this.RAIDS_DETAILS_MAP.set(
-            interaction.channel,
+            interaction.channel.id,
             {
-                "interaction": interaction,
+                "messageWithEmbedder": response.resource.message,
                 "embedder": raidEmbedder,
             }
         );
