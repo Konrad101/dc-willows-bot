@@ -10,8 +10,9 @@ import {
     MAGE_SELECT_MENU_CUSTOM_ID, MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID,
     SIGN_BUTTON_CUSTOM_ID, UNSUBSCRIBE_BUTTON_CUSTOM_ID
 } from './raid/raid-service.js';
+import { InMemoryRaidDetailsRepository } from './raid/repository/in-memory-raid-details-repository.js'
 
-const raidService = new RaidService();
+const raidService = new RaidService(new InMemoryRaidDetailsRepository());
 
 // client initialization
 const client = new Client({

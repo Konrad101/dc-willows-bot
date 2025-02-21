@@ -62,13 +62,6 @@ class RaidEmbedder {
         this.members = this.members.filter(member => member.userId != userId);
     }
 
-    /**
-     * Removes completely embedder and scheduled raids.
-     */
-    delete() {
-
-    }
-
     #applyRaidParamsToEmbedder() {
         // TODO: determine if fields are OK
         this.embedder
