@@ -5,7 +5,7 @@ export { RaidEmbedder };
 
 class RaidEmbedder {
 
-    constructor(raidParameters) {
+    constructor(raidParameters, author) {
         this.raidParameters = raidParameters;
 
         this.members = [];
@@ -13,13 +13,14 @@ class RaidEmbedder {
         //     new RaidMember("739620586896228424", [ "<:warsp1:1292183221584400617>", ":fire:" ], [ "Maratończyk+" ]),
         //     new RaidMember("739620586896228424", [ ":first_place:" ], [ "Maratończyk+" ]),
         // ];
+        this.author = author;
         this.embedder = null;
     }
 
-    loadEmbedder(author) {
+    loadEmbedder() {
         this.embedder = new EmbedBuilder()
             .setColor(0x9400FF)
-            .setAuthor({ name: `${author} tworzy zapisy na rajdy!` });
+            .setAuthor({ name: `${this.author} tworzy zapisy na rajdy!` });
         return this.refreshEmbedder();
     }
     

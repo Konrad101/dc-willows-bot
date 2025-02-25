@@ -25,8 +25,8 @@ const UNSUBSCRIBE_BUTTON_CUSTOM_ID = "unsubscribeFromRaidButton";
 
 class RaidService {
 
-    // TODO: inject raid registry/repository?
-    constructor(raidRepository) {
+    constructor(guild, raidRepository) {
+        this.guild = guild;
         this.raidRepository = raidRepository;
     }
 
@@ -51,14 +51,12 @@ class RaidService {
             RESERVE_ROLES,
         );
 
-        const raidDetails = this.raidRepository.getByChannelId(interaction.channel.id);
+        const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails !== null) {
             console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
                 `edits raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
             await interaction.deferReply();
-            raidDetails.messageWithEmbedder.edit({
-                embeds: [ raidDetails.embedder.updateEmbedder(raidParameters) ] 
-            });
+            await this.#updateRaidDetails(raidDetails, raidDetails.embedder.updateEmbedder(raidParameters));
             await interaction.deleteReply();
         } else {
             console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
@@ -68,11 +66,15 @@ class RaidService {
     }
 
     async addPlayerFromInteraction(interaction) {
-        const raidDetails = this.raidRepository.getByChannelId(interaction.channel.id);
+        const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(`Could not find details to sign for raids for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
             await interaction.deferReply();
+            interaction.webhook.editMessage(interaction.message, {
+                content: "Błąd: nie udało się znaleźć listy do zapisania na rajd!",
+                components: [],
+            });
             await interaction.deleteReply();
             return;
         }
@@ -90,9 +92,8 @@ class RaidService {
         const memberAdded = raidDetails.embedder.addMember(
             memberFromInteraction(interaction));
         if (memberAdded) {
-            raidDetails.messageWithEmbedder.edit({ 
-                embeds: [ raidDetails.embedder.refreshEmbedder() ] 
-            });
+            this.raidRepository.save(raidDetails);
+            this.#updateRaidDetails(raidDetails, raidDetails.embedder.refreshEmbedder());
             interaction.webhook.deleteMessage(interaction.message);
         } else {
             interaction.webhook.editMessage(interaction.message, {
@@ -129,7 +130,7 @@ class RaidService {
     }
 
     async unsubscribeFromRaid(interaction) {
-        const raidDetails = this.raidRepository.getByChannelId(interaction.channel.id);
+        const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(`Could not find details to unsibscribe from raid for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
@@ -146,14 +147,12 @@ class RaidService {
                 `unsubscribes from raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         await interaction.deferReply();
         raidDetails.embedder.removeMember(interaction.user.id);
-        raidDetails.messageWithEmbedder.edit({ 
-            embeds: [ raidDetails.embedder.refreshEmbedder() ] 
-        });
+        this.#updateRaidDetails(raidDetails, raidDetails.embedder.refreshEmbedder());
         await interaction.deleteReply();
     }
 
     async kickPlayerFromRaid(interaction) {
-        const raidDetails = this.raidRepository.getByChannelId(interaction.channel.id);
+        const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(`Could not find details to kick raid member for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
@@ -175,14 +174,12 @@ class RaidService {
             ` kicks from raid: ${userToKick.globalName} (${userToKick.id})` +
             ` on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         raidDetails.embedder.removeMember(userToKick.id);
-        raidDetails.messageWithEmbedder.edit({
-            embeds: [ raidDetails.embedder.refreshEmbedder() ] 
-        });
+        this.#updateRaidDetails(raidDetails, raidDetails.embedder.refreshEmbedder());
         await interaction.deleteReply();
     }
 
     async cancelRaid(interaction) {
-        const raidDetails = this.raidRepository.getByChannelId(interaction.channel.id);
+        const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(
                 `Could not find details to cancel raid for channel: ${interaction.channel.id}, ` +
@@ -206,8 +203,9 @@ class RaidService {
         );
         await interaction.deferReply();
         
-        this.raidRepository.deleteByChannelId(interaction.channel.id);
-        raidDetails.messageWithEmbedder.delete();
+        await this.raidRepository.deleteByChannelId(interaction.channel.id);
+        await this.#fetchRaidDetailsMessage(raidDetails)?.delete();
+
         await interaction.deleteReply();
     }
 
@@ -223,7 +221,7 @@ class RaidService {
     }
 
     async #handleRaidCreation(interaction, raidParameters) {
-        const raidEmbedder = new RaidEmbedder(raidParameters);
+        const raidEmbedder = new RaidEmbedder(raidParameters, interaction.user.globalName);
         
         const response = await interaction.reply({
             components: [
@@ -238,15 +236,39 @@ class RaidService {
                         .setStyle(ButtonStyle.Danger)
                 ),
             ],
-            embeds: [ raidEmbedder.loadEmbedder(interaction.user.globalName) ],
+            embeds: [ raidEmbedder.loadEmbedder() ],
             withResponse: true,
         });
 
-        this.raidRepository.save(new RaidDetails(
+        await this.raidRepository.save(new RaidDetails(
             interaction.channel.id,
-            response.resource.message,
+            response.resource.message.id,
             raidEmbedder,
         ));
+    }
+
+    async #updateRaidDetails(raidDetails, embedder) {
+        const message = this.#fetchRaidDetailsMessage(raidDetails);
+        if (message !== null) {
+            message.edit({ embeds: [ embedder ] });
+            await this.raidRepository.save(raidDetails);
+        } else {
+            console.log(`Could not fetch details message with id ${raidDetails.messageId}`);
+        }
+    }
+
+    /**
+     * Returns either existing message with embedder 
+     * or null if message does not exist.
+     */
+    #fetchRaidDetailsMessage(raidDetails) {
+        const fetchedMessage = this.guild
+            .channels.cache
+            .get(raidDetails.channelId)
+            .messages.cache
+            .find(message => message.id === raidDetails.messageId);
+        
+        return fetchedMessage !== undefined ? fetchedMessage : null; 
     }
 
 }

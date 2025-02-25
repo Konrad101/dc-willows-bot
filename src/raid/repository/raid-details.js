@@ -2,9 +2,9 @@ export { RaidDetails };
 
 class RaidDetails {
 
-    constructor(channelId, messageWithEmbedder, embedder) {
+    constructor(channelId, messageId, embedder) {
         this.channelId = channelId;
-        this.messageWithEmbedder = messageWithEmbedder;
+        this.messageId = messageId;
         this.embedder = embedder;
     }
 

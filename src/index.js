@@ -1,6 +1,4 @@
 import dotenv from 'dotenv';
-dotenv.config();
-
 import { Client, Events, IntentsBitField } from 'discord.js';
 import { RAID_CREATION_COMMAND_NAME } from './raid/commands/raid-creation-command.js'
 import { RAID_CANCELLATION_COMMAND_NAME } from './raid/commands/raid-cancellation-command.js'
@@ -11,8 +9,13 @@ import {
     SIGN_BUTTON_CUSTOM_ID, UNSUBSCRIBE_BUTTON_CUSTOM_ID
 } from './raid/raid-service.js';
 import { InMemoryRaidDetailsRepository } from './raid/repository/in-memory-raid-details-repository.js'
+import { SqliteRaidDetailsRepository } from './raid/repository/sqlite-raid-detalis-repository.js'
 
-const raidService = new RaidService(new InMemoryRaidDetailsRepository());
+dotenv.config();
+
+
+const raidRepository = new SqliteRaidDetailsRepository(":memory:");
+await raidRepository.initializeDb();
 
 // client initialization
 const client = new Client({
@@ -24,7 +27,13 @@ const client = new Client({
     ]
 });
 
+let raidService = null;
+
 client.on(Events.ClientReady, client => {
+    raidService = new RaidService(
+        client.guilds.cache.get(process.env.GUILD_ID),
+        raidRepository
+    );
     console.log(`${client.user.tag} jest gotowy do działania!`);
 });
 
@@ -49,7 +58,7 @@ client.on(Events.InteractionCreate, async interaction => {
         raidService.unsubscribeFromRaid(interaction);
     }
 
-})
+});
 
 // Tworzenie wiadomości na priv
 // client.on("messageCreate", async (message) => {
