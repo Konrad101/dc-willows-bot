@@ -24,9 +24,15 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
             console.error('Unable to connect to the database:', error);
         }
         
+        // TODO: split serialized raid details to more basic types:
+        //  1. serialized raid parameters 
+        //  2. raid details members
         this.raidDetailsDao = this.db.define('raid_details', {
-            channelId: { type: DataTypes.TEXT ,  primaryKey: true } ,
-            serializedRaidDetails: DataTypes.TEXT,
+            channelId: { type: DataTypes.TEXT, primaryKey: true },
+            messageId: DataTypes.TEXT,
+            raidsAuthor: DataTypes.TEXT,
+            serializedRaidParameters: DataTypes.TEXT,
+            serializedRaidMembers: DataTypes.TEXT,
         });
 
         await this.db.sync();
@@ -36,31 +42,26 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
         const savedRaidDetails = await this.raidDetailsDao.findByPk(channelId);
         if (savedRaidDetails === null) return null;
         
-        const deserializedDetails = JSON.parse(savedRaidDetails.serializedRaidDetails);
-        
-        const embedder = new RaidEmbedder(
-            deserializedDetails.embedder.raidParameters, 
-            deserializedDetails.embedder.author
-        );
-        embedder.members = deserializedDetails.embedder.members;
-        embedder.loadEmbedder();
-
         return new RaidDetails(
-            channelId, 
-            deserializedDetails.messageId,
-            embedder,
-         )
+            channelId,
+            savedRaidDetails.messageId,
+            await this.#createEmbedderFromDetails(savedRaidDetails),
+        );
     }
 
     async save(raidDetails) {
         const detailsFromDb = await this.raidDetailsDao.findByPk(raidDetails.channelId);
         if (detailsFromDb !== null) {
-            detailsFromDb.serializedRaidDetails = JSON.stringify(raidDetails);
+            detailsFromDb.serializedRaidParameters = JSON.stringify(raidDetails.embedder.raidParameters);
+            detailsFromDb.serializedRaidMembers = JSON.stringify(raidDetails.embedder.getMembers());
             detailsFromDb.save();
         } else {
             this.raidDetailsDao.create({
                 channelId: raidDetails.channelId,  
-                serializedRaidDetails: JSON.stringify(raidDetails),
+                messageId: raidDetails.messageId,
+                raidsAuthor: raidDetails.embedder.author,
+                serializedRaidParameters: JSON.stringify(raidDetails.embedder.raidParameters),
+                serializedRaidMembers: JSON.stringify(raidDetails.embedder.getMembers()),
             });
         }
     }
@@ -70,6 +71,18 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
         if (raidDetails !== null) {
             await raidDetails.destroy();
         }
+    }
+
+    async #createEmbedderFromDetails(savedRaidDetails) {
+        const embedder = new RaidEmbedder(
+            JSON.parse(savedRaidDetails.serializedRaidParameters), 
+            savedRaidDetails.raidsAuthor,
+        );
+
+        embedder.members = JSON.parse(savedRaidDetails.serializedRaidMembers);
+        embedder.loadEmbedder();
+
+        return embedder;
     }
 
 }
