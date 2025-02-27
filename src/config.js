@@ -2,6 +2,7 @@
 export { 
     RESERVE_ROLES, RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES,
     WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU,
+    MEMBERS_BATCH_SIZE, EMBEDDER_COLOR
  };
 
 // ----------------------------
@@ -91,3 +92,16 @@ const MARTIAL_ARTIST_SELECT_MENU = {
         { id: "1292187994085920768", name: "mswsp7", label: "SP 7" },
     ]
 };
+
+
+// ------------------------------------------------
+// Konfiguracja embeddingu z listą zapisanych osób.
+
+// Lista jest rozdzielana na kilka wierszy, bo jeden
+// wiersz nie pomieści wszystkich graczy.
+// Wartość poniżej definiuje ile maksymalnie graczy
+// może zmieścić 1 wiersz.
+const MEMBERS_BATCH_SIZE = 2;
+
+// Kolor paska po lewej stronie embeddera w wartości heksadecymalnej.
+const EMBEDDER_COLOR = 0x9400FF;

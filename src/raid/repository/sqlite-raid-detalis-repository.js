@@ -24,9 +24,6 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
             console.error('Unable to connect to the database:', error);
         }
         
-        // TODO: split serialized raid details to more basic types:
-        //  1. serialized raid parameters 
-        //  2. raid details members
         this.raidDetailsDao = this.db.define('raid_details', {
             channelId: { type: DataTypes.TEXT, primaryKey: true },
             messageId: DataTypes.TEXT,

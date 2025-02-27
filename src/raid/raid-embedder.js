@@ -1,4 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
+import { MEMBERS_BATCH_SIZE, EMBEDDER_COLOR } from '../config.js'
 
 export { RaidEmbedder };
 
@@ -7,19 +8,15 @@ class RaidEmbedder {
 
     constructor(raidParameters, author) {
         this.raidParameters = raidParameters;
-
-        this.members = [];
-        // this.members = [ 
-        //     new RaidMember("739620586896228424", [ "<:warsp1:1292183221584400617>", ":fire:" ], [ "Maratończyk+" ]),
-        //     new RaidMember("739620586896228424", [ ":first_place:" ], [ "Maratończyk+" ]),
-        // ];
         this.author = author;
+        
+        this.members = [];
         this.embedder = null;
     }
 
     loadEmbedder() {
         this.embedder = new EmbedBuilder()
-            .setColor(0x9400FF)
+            .setColor(EMBEDDER_COLOR)
             .setAuthor({ name: `${this.author} tworzy zapisy na rajdy!` });
         return this.refreshEmbedder();
     }
@@ -65,29 +62,52 @@ class RaidEmbedder {
 
     #applyRaidParamsToEmbedder() {
         // TODO: determine if fields are OK
+        let embedderFields = [
+            { name: 'Ile czasu:', value: `${this.raidParameters.duration}`, inline: true },
+            { name: 'Lider:', value: `<@${this.raidParameters.leaderId}>`, inline: true },
+            { name: 'Zbiórka:', value: `${this.raidParameters.gathering}`, inline: true },
+            { name: 'Odpał:', value: `Poty, tarot, pety` },
+            { name: 'Wymagania:', value: `${this.raidParameters.requirements}` },
+            { name: '\u200B', value: '\u200B' },
+        ];
+        embedderFields = embedderFields.concat(
+            this.#createRaidMembersFields('Lista graczy:', this.#getMainSquad())
+        );
+        embedderFields = embedderFields.concat(
+            this.#createRaidMembersFields('Lista rezerwowa:', this.#getReserveSquad())
+        );
+
         this.embedder
             .setTitle(`${this.raidParameters.date}, ${this.raidParameters.time}\nmaraton rajdów: ${this.raidParameters.whatRaid}`)
-            .setFields(
-                { name: 'Ile czasu:', value: `${this.raidParameters.duration}`, inline: true },
-                { name: 'Lider:', value: `<@${this.raidParameters.leaderId}>`, inline: true },
-                { name: 'Zbiórka:', value: `${this.raidParameters.gathering}`, inline: true },
-                { name: 'Odpał:', value: `Poty, tarot, pety` },
-                { name: 'Wymagania:', value: `${this.raidParameters.requirements}` },
-                { name: '\u200B', value: '\u200B' },
-                { name: 'Lista graczy:', value: `${this.#formatRaidMembers(this.#getMainSquad())}` },
-                { name: 'Lista rezerwowa:', value: `${this.#formatRaidMembers(this.#getReserveSquad())}` },
-            );
+            .setFields(embedderFields);
     }
 
-    #formatRaidMembers(raidMembers) {
+    #createRaidMembersFields(fieldName, raidMembers) {
+        const fields = [];
+        const batchesCount = raidMembers.length === 0 ? 
+            1 : 
+            Math.ceil(raidMembers.length / MEMBERS_BATCH_SIZE);
+
+        for (let i = 1; i <= batchesCount; i++) {
+            const name = i === 1 ? fieldName : " ";
+            const formattedMembers = this.#formatRaidMembers(raidMembers, (i - 1) * MEMBERS_BATCH_SIZE);
+            const membersObject = { name: name, value: `${formattedMembers}` };
+            fields.push(membersObject);
+        }
+
+        return fields;
+    }
+
+    #formatRaidMembers(raidMembers, startingIndex) {
         if (raidMembers.length === 0) {
             return `\`1. \`➜\` ${this.raidParameters.maxPlayers}.\` - Brak graczy`;
         }
 
         let formattedMembers = "";
-        for (let i = 1; i <= raidMembers.length; i++) {
-            const member = raidMembers[i - 1];
-            formattedMembers += "`" + i + ".`";
+        const lastBatchIndex = Math.min(raidMembers.length, startingIndex + MEMBERS_BATCH_SIZE);
+        for (let i = startingIndex; i < lastBatchIndex; i++) {
+            const member = raidMembers[i];
+            formattedMembers += "`" + (i + 1) + ".`";
             formattedMembers += ` <@${member.userId}> - `;
             
             member.specialists.forEach(specialist => {
@@ -102,7 +122,10 @@ class RaidEmbedder {
 
             formattedMembers += "\n";
         }
-        if (raidMembers.length < this.raidParameters.maxPlayers) {
+        const addMissingPlayersText = startingIndex + MEMBERS_BATCH_SIZE >= raidMembers.length
+            && raidMembers.length < this.raidParameters.maxPlayers;
+
+        if (addMissingPlayersText) {
             if (raidMembers.length === this.raidParameters.maxPlayers - 1) {
                 formattedMembers += `\`${raidMembers.length + 1}.\` - Brak ostatniego gracza`;
             } else {
