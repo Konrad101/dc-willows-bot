@@ -2,7 +2,8 @@
 export { 
     RESERVE_ROLES, RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES,
     WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU,
-    MEMBERS_BATCH_SIZE, EMBEDDER_COLOR
+    MEMBERS_BATCH_SIZE, EMBEDDER_COLOR,
+    DB_FILE_PATH
  };
 
 // ----------------------------
@@ -105,3 +106,11 @@ const MEMBERS_BATCH_SIZE = 2;
 
 // Kolor paska po lewej stronie embeddera w wartości heksadecymalnej.
 const EMBEDDER_COLOR = 0x9400FF;
+
+
+// ------------------------------------
+// Konfiguracja bazy danych z zapisami.
+// Albo ścieżka do pliku, 
+// albo wpisać :memory:
+// żeby trzymało rajdy w pamięci (po restarcie apki - nie będzie się dało nic edytować)
+const DB_FILE_PATH = "raids.db";

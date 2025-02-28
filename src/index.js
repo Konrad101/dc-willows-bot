@@ -8,13 +8,13 @@ import {
     MAGE_SELECT_MENU_CUSTOM_ID, MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID,
     SIGN_BUTTON_CUSTOM_ID, UNSUBSCRIBE_BUTTON_CUSTOM_ID
 } from './raid/raid-service.js';
-import { InMemoryRaidDetailsRepository } from './raid/repository/in-memory-raid-details-repository.js'
 import { SqliteRaidDetailsRepository } from './raid/repository/sqlite-raid-detalis-repository.js'
+import { DB_FILE_PATH } from './config.js'
 
 dotenv.config();
 
 
-const raidRepository = new SqliteRaidDetailsRepository(":memory:");
+const raidRepository = new SqliteRaidDetailsRepository(DB_FILE_PATH);
 await raidRepository.initializeDb();
 
 // client initialization

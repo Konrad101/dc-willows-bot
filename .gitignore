@@ -1,4 +1,9 @@
+# DEV FILES #
+node_modules
 .env
+raids.db
+
+# UTIL FILES #
 USE-CASES.md
 NOTES.md
-node_modules
+
