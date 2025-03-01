@@ -12,6 +12,7 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
         this.db = new Sequelize({
             dialect: 'sqlite',
             storage: databaseFilePath,
+            logging: false,
         });
         this.raidDetailsDao = null;
     }
