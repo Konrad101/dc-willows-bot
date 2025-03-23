@@ -1,16 +1,20 @@
 import { EmbedBuilder } from 'discord.js';
-import { MEMBERS_BATCH_SIZE, EMBEDDER_COLOR } from '../config.js'
+import { MEMBERS_BATCH_SIZE, EMBEDDER_COLOR } from '../config.js';
+import { RaidMembersList } from './raid-members-list.js';
 
 export { RaidEmbedder };
 
 
 class RaidEmbedder {
 
+    LIST_BATCHES_SEPARATOR = " ";
+
     constructor(raidParameters, author) {
         this.raidParameters = raidParameters;
         this.author = author;
         
-        this.members = [];
+        this.mainSquadList = new RaidMembersList();
+        this.reserveSquadList = new RaidMembersList();
         this.embedder = null;
     }
 
@@ -34,30 +38,12 @@ class RaidEmbedder {
     /**
      * Necessary in order to send DM to raid members before start.
      */
-    getMembers() {
-        return this.members;
+    getMainSquad() {
+        return this.mainSquadList;
     }
 
-    /**
-     * Method checks if given member can be added to list:
-     * when member was added => returns true,
-     * when member could not be added => returns false.
-     */
-    addMember(raidMember) {
-        if (this.members.length >= this.raidParameters.maxPlayers) {
-            return false;
-        }
-
-        this.members.push(raidMember);
-        return true;
-    }
-
-    removeMember(raidMember) {
-        this.removeMember(raidMember.userId);
-    }
-
-    removeMember(userId) {
-        this.members = this.members.filter(member => member.userId != userId);
+    getReserveSquad() {
+        return this.reserveSquadList;
     }
 
     #applyRaidParamsToEmbedder() {
@@ -70,11 +56,12 @@ class RaidEmbedder {
             { name: 'Wymagania:', value: `${this.raidParameters.requirements}` },
             { name: '\u200B', value: '\u200B' },
         ];
+        
         embedderFields = embedderFields.concat(
-            this.#createRaidMembersFields('Lista graczy:', this.#getMainSquad())
+            this.#createRaidMembersFields('Lista graczy:', this.getMainSquad().getMembers(), this.raidParameters.mainSquadMaxPlayers)
         );
         embedderFields = embedderFields.concat(
-            this.#createRaidMembersFields('Lista rezerwowa:', this.#getReserveSquad())
+            this.#createRaidMembersFields('Lista rezerwowa:', this.getReserveSquad().getMembers(), this.raidParameters.reserveSquadMaxPlayers)
         );
 
         this.embedder
@@ -82,25 +69,23 @@ class RaidEmbedder {
             .setFields(embedderFields);
     }
 
-    #createRaidMembersFields(fieldName, raidMembers) {
+    #createRaidMembersFields(fieldName, raidMembers, maxPlayers) {
         const fields = [];
         const batchesCount = raidMembers.length === 0 ? 
             1 : 
             Math.ceil(raidMembers.length / MEMBERS_BATCH_SIZE);
-
         for (let i = 1; i <= batchesCount; i++) {
-            const name = i === 1 ? fieldName : " ";
-            const formattedMembers = this.#formatRaidMembers(raidMembers, (i - 1) * MEMBERS_BATCH_SIZE);
+            const name = i === 1 ? fieldName : this.LIST_BATCHES_SEPARATOR;
+            const formattedMembers = this.#formatRaidMembers(raidMembers, (i - 1) * MEMBERS_BATCH_SIZE, maxPlayers);
             const membersObject = { name: name, value: `${formattedMembers}` };
             fields.push(membersObject);
         }
-
         return fields;
     }
 
-    #formatRaidMembers(raidMembers, startingIndex) {
+    #formatRaidMembers(raidMembers, startingIndex, maxPlayers) {
         if (raidMembers.length === 0) {
-            return `\`1. \`➜\` ${this.raidParameters.maxPlayers}.\` - Brak graczy`;
+            return `\`1. \`➜\` ${maxPlayers}.\` - Brak graczy`;
         }
 
         let formattedMembers = "";
@@ -123,23 +108,15 @@ class RaidEmbedder {
             formattedMembers += "\n";
         }
         const addMissingPlayersText = startingIndex + MEMBERS_BATCH_SIZE >= raidMembers.length
-            && raidMembers.length < this.raidParameters.maxPlayers;
+            && raidMembers.length < maxPlayers;
 
         if (addMissingPlayersText) {
-            if (raidMembers.length === this.raidParameters.maxPlayers - 1) {
+            if (raidMembers.length === maxPlayers - 1) {
                 formattedMembers += `\`${raidMembers.length + 1}.\` - Brak ostatniego gracza`;
             } else {
-                formattedMembers += `\`${raidMembers.length + 1}. \`➜\` ${this.raidParameters.maxPlayers}.\` - Brak graczy`;
+                formattedMembers += `\`${raidMembers.length + 1}. \`➜\` ${maxPlayers}.\` - Brak graczy`;
             }
         }
         return formattedMembers;
-    }
-
-    #getMainSquad() {
-        return this.members.filter(member => !member.roles.some(r => this.raidParameters.reserveRoles.includes(r)));
-    }
-
-    #getReserveSquad() {
-        return this.members.filter(member => member.roles.some(r => this.raidParameters.reserveRoles.includes(r)));
     }
 }

@@ -9,8 +9,8 @@ class RaidParameters {
                 leaderId,
                 gathering,
                 requirements,
-                maxPlayers,
-                reserveRoles) {
+                mainSquadMaxPlayers,
+                reserveSquadMaxPlayers) {
         this.whatRaid = whatRaid;
         this.date = date;
         this.time = time;
@@ -18,7 +18,7 @@ class RaidParameters {
         this.leaderId = leaderId;
         this.gathering = gathering;
         this.requirements = requirements;
-        this.maxPlayers = maxPlayers;
-        this.reserveRoles = reserveRoles;
+        this.mainSquadMaxPlayers = mainSquadMaxPlayers;
+        this.reserveSquadMaxPlayers = reserveSquadMaxPlayers;
     }
 }

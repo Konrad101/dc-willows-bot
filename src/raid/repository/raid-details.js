@@ -8,8 +8,4 @@ class RaidDetails {
         this.embedder = embedder;
     }
 
-    hasRaidMember(userId) {
-        return this.embedder.getMembers()
-            .some(member => member.userId === userId);
-    }
 }

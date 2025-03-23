@@ -36,4 +36,8 @@ export const RAID_CREATION_COMMAND_BUILDER = new SlashCommandBuilder()
     .addNumberOption(option => 
         option.setName('max-liczba-osob')
             .setDescription('Maksymalna liczba członków na rajd (domyślnie: 15))')
+            .setRequired(false))
+    .addNumberOption(option => 
+        option.setName('rezerwa-max-liczba-osob')
+            .setDescription('Maksymalna liczba osób na rezerwie (domyślnie: 10))')
             .setRequired(false));

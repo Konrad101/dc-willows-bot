@@ -2,6 +2,7 @@ import { RaidDetailsRepository } from "./raid-details-repository-contract.js";
 import { DataTypes, Sequelize } from 'sequelize';
 import { RaidDetails } from "./raid-details.js";
 import { RaidEmbedder } from "../raid-embedder.js";
+import { RaidMembersList } from "../raid-members-list.js";
 
 export { SqliteRaidDetailsRepository };
 
@@ -30,7 +31,8 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
             messageId: DataTypes.TEXT,
             raidsAuthor: DataTypes.TEXT,
             serializedRaidParameters: DataTypes.TEXT,
-            serializedRaidMembers: DataTypes.TEXT,
+            serializedMainSquadMembers: DataTypes.TEXT,
+            serializedReserveSquadMembers: DataTypes.TEXT,
         });
 
         await this.db.sync();
@@ -51,7 +53,8 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
         const detailsFromDb = await this.raidDetailsDao.findByPk(raidDetails.channelId);
         if (detailsFromDb !== null) {
             detailsFromDb.serializedRaidParameters = JSON.stringify(raidDetails.embedder.raidParameters);
-            detailsFromDb.serializedRaidMembers = JSON.stringify(raidDetails.embedder.getMembers());
+            detailsFromDb.serializedMainSquadMembers = JSON.stringify(raidDetails.embedder.getMainSquad().getMembers());
+            detailsFromDb.serializedReserveSquadMembers = JSON.stringify(raidDetails.embedder.getReserveSquad().getMembers());
             detailsFromDb.save();
         } else {
             this.raidDetailsDao.create({
@@ -59,7 +62,8 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
                 messageId: raidDetails.messageId,
                 raidsAuthor: raidDetails.embedder.author,
                 serializedRaidParameters: JSON.stringify(raidDetails.embedder.raidParameters),
-                serializedRaidMembers: JSON.stringify(raidDetails.embedder.getMembers()),
+                serializedMainSquadMembers: JSON.stringify(raidDetails.embedder.getMainSquad().getMembers()),
+                serializedReserveSquadMembers: JSON.stringify(raidDetails.embedder.getReserveSquad().getMembers()),
             });
         }
     }
@@ -72,12 +76,14 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
     }
 
     async #createEmbedderFromDetails(savedRaidDetails) {
-        const embedder = new RaidEmbedder(
-            JSON.parse(savedRaidDetails.serializedRaidParameters), 
-            savedRaidDetails.raidsAuthor,
-        );
+        const raidParameters = JSON.parse(savedRaidDetails.serializedRaidParameters);
+        const embedder = new RaidEmbedder(raidParameters, savedRaidDetails.raidsAuthor);
 
-        embedder.members = JSON.parse(savedRaidDetails.serializedRaidMembers);
+        embedder.mainSquadList = new RaidMembersList(raidParameters.mainSquadMaxPlayers);
+        embedder.reserveSquadList = new RaidMembersList(raidParameters.reserveSquadMaxPlayers);
+        embedder.mainSquadList.members = JSON.parse(savedRaidDetails.serializedMainSquadMembers);
+        embedder.reserveSquadList.members = JSON.parse(savedRaidDetails.serializedReserveSquadMembers);
+
         embedder.loadEmbedder();
 
         return embedder;

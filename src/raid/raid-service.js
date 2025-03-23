@@ -6,22 +6,31 @@ import { RaidDetails } from './repository/raid-details.js';
 import { memberFromInteraction } from './raid-member.js';
 import { RaidMemberSelectMenu } from './raid-member-select-menu.js';
 import { 
-    RESERVE_ROLES, RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, 
-    WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU
+    RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, 
+    MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU
 } from '../config.js';
 
 export { 
-    RaidService, WARRIOR_SELECT_MENU_CUSTOM_ID, ARCHER_SELECT_MENU_CUSTOM_ID, 
-    MAGE_SELECT_MENU_CUSTOM_ID, MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID,
-    SIGN_BUTTON_CUSTOM_ID, UNSUBSCRIBE_BUTTON_CUSTOM_ID
+    RaidService, WARRIOR_MENU_ID, ARCHER_MENU_ID, MAGE_MENU_ID, 
+    MARTIAL_ARTIST_MENU_ID, SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID, 
+    SIGN_RESERVE_SQUAD_BUTTON_ID, UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID, 
+    WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, MAGE_MENU_ID_RESERVE,
+    MARTIAL_ARTIST_MENU_ID_RESERVE
 };
 
-const WARRIOR_SELECT_MENU_CUSTOM_ID = "warriorSelectMenu";
-const ARCHER_SELECT_MENU_CUSTOM_ID = "archerSelectMenu";
-const MAGE_SELECT_MENU_CUSTOM_ID = "mageSelectMenu";
-const MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID = "martialArtistSelectMenu";
-const SIGN_BUTTON_CUSTOM_ID = "signUpToRaidButton";
-const UNSUBSCRIBE_BUTTON_CUSTOM_ID = "unsubscribeFromRaidButton";
+const WARRIOR_MENU_ID = "warriorSelectMenu";
+const ARCHER_MENU_ID = "archerSelectMenu";
+const MAGE_MENU_ID = "mageSelectMenu";
+const MARTIAL_ARTIST_MENU_ID = "martialArtistSelectMenu";
+const WARRIOR_MENU_ID_RESERVE = "warriorSelectMenuReserve";
+const ARCHER_MENU_ID_RESERVE = "archerSelectMenuReserve";
+const MAGE_MENU_ID_RESERVE = "mageSelectMenuReserve";
+const MARTIAL_ARTIST_MENU_ID_RESERVE = "martialArtistSelectMenuReserve";
+
+const SIGN_MAIN_SQUAD_BUTTON_ID = "signUpToMainSquadButton";
+const UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID = "unsubscribeFromMainSquadButton";
+const SIGN_RESERVE_SQUAD_BUTTON_ID = "signUpToReserveSquadButton";
+const UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID = "unsubscribeFromReserveSquadButton";
 
 class RaidService {
 
@@ -48,14 +57,14 @@ class RaidService {
             interaction.options.get("gdzie-i-kiedy-zbiorka").value,
             interaction.options.get("wymagania")?.value,
             interaction.options.get("max-liczba-osob")?.value ?? 15,
-            RESERVE_ROLES,
+            interaction.options.get("rezerwa-max-liczba-osob")?.value ?? 10,
         );
 
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails !== null) {
             console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
                 `edits raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
-            await interaction.deferReply();
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             await this.#updateRaidDetails(raidDetails, raidDetails.embedder.updateEmbedder(raidParameters));
             await interaction.deleteReply();
         } else {
@@ -65,12 +74,12 @@ class RaidService {
         }
     }
 
-    async addPlayerFromInteraction(interaction) {
+    async addPlayerFromInteraction(interaction, addToMainSquad) {
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(`Could not find details to sign for raids for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
-            await interaction.deferReply();
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             interaction.webhook.editMessage(interaction.message, {
                 content: "Błąd: nie udało się znaleźć listy do zapisania na rajd!",
                 components: [],
@@ -88,9 +97,12 @@ class RaidService {
 
         console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
                 `is trying to sign to raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
-        await interaction.deferReply();
-        const memberAdded = raidDetails.embedder.addMember(
-            memberFromInteraction(interaction));
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        
+        const squadList = addToMainSquad ? 
+            raidDetails.embedder.getMainSquad() : 
+            raidDetails.embedder.getReserveSquad();
+        const memberAdded = squadList.addMember(memberFromInteraction(interaction));
         if (memberAdded) {
             this.raidRepository.save(raidDetails);
             this.#updateRaidDetails(raidDetails, raidDetails.embedder.refreshEmbedder());
@@ -104,7 +116,7 @@ class RaidService {
         await interaction.deleteReply();
     }
 
-    async displaySpecialistsSelectMenus(interaction) {
+    async displaySpecialistsSelectMenus(interaction, mainSquadSignup) {
         if (!await this.#interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
             interaction.reply({
                 content: "Brak uprawnień do zapisania się na rajdy!",
@@ -118,35 +130,45 @@ class RaidService {
         const mageSelectMenu = new RaidMemberSelectMenu(MAGE_SELECT_MENU);
         const martialArtistSelectMenu = new RaidMemberSelectMenu(MARTIAL_ARTIST_SELECT_MENU);
 
+        const warriorMenuCustomId = mainSquadSignup ? WARRIOR_MENU_ID : WARRIOR_MENU_ID_RESERVE;
+        const archerMenuCustomId = mainSquadSignup ? ARCHER_MENU_ID : ARCHER_MENU_ID_RESERVE;
+        const mageMenuCustomId = mainSquadSignup ? MAGE_MENU_ID : MAGE_MENU_ID_RESERVE;
+        const martialArtistMenuCustomId = mainSquadSignup ? MARTIAL_ARTIST_MENU_ID : MARTIAL_ARTIST_MENU_ID_RESERVE;
+
         interaction.reply({ 
             components: [
-                new ActionRowBuilder().addComponents(warriorSelectMenu.loadSelectMenu(WARRIOR_SELECT_MENU_CUSTOM_ID)),
-                new ActionRowBuilder().addComponents(archerSelectMenu.loadSelectMenu(ARCHER_SELECT_MENU_CUSTOM_ID)),
-                new ActionRowBuilder().addComponents(mageSelectMenu.loadSelectMenu(MAGE_SELECT_MENU_CUSTOM_ID)),
-                new ActionRowBuilder().addComponents(martialArtistSelectMenu.loadSelectMenu(MARTIAL_ARTIST_SELECT_MENU_CUSTOM_ID)),
+                new ActionRowBuilder().addComponents(warriorSelectMenu.loadSelectMenu(warriorMenuCustomId)),
+                new ActionRowBuilder().addComponents(archerSelectMenu.loadSelectMenu(archerMenuCustomId)),
+                new ActionRowBuilder().addComponents(mageSelectMenu.loadSelectMenu(mageMenuCustomId)),
+                new ActionRowBuilder().addComponents(martialArtistSelectMenu.loadSelectMenu(martialArtistMenuCustomId)),
             ],
             flags: MessageFlags.Ephemeral,
         });
     }
 
-    async unsubscribeFromRaid(interaction) {
+    async unsubscribeFromRaid(interaction, unsubscribeFromMainSquad) {
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(`Could not find details to unsibscribe from raid for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
-            await interaction.deferReply();
-            await interaction.deleteReply();
-            return;
-        } else if (!raidDetails.hasRaidMember(interaction.user.id)) {
-            await interaction.deferReply();
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             await interaction.deleteReply();
             return;
         }
-
+        
+        const squadList = unsubscribeFromMainSquad ? 
+            raidDetails.embedder.getMainSquad() :
+            raidDetails.embedder.getReserveSquad();
+        if (!squadList.hasMember(interaction.user.id)) {
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            await interaction.deleteReply();
+            return;
+        }
+        
         console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
                 `unsubscribes from raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
-        await interaction.deferReply();
-        raidDetails.embedder.removeMember(interaction.user.id);
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        squadList.removeMember(interaction.user.id);
         this.#updateRaidDetails(raidDetails, raidDetails.embedder.refreshEmbedder());
         await interaction.deleteReply();
     }
@@ -156,7 +178,7 @@ class RaidService {
         if (raidDetails === null) {
             console.log(`Could not find details to kick raid member for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
-            await interaction.deferReply();
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             await interaction.deleteReply();
             return;
         }
@@ -168,7 +190,7 @@ class RaidService {
             return;
         }
 
-        await interaction.deferReply();
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const userToKick = interaction.options.get("osoba").user;
         console.log(`${interaction.user.globalName} (${interaction.user.id})` +
             ` kicks from raid: ${userToKick.globalName} (${userToKick.id})` +
@@ -185,7 +207,7 @@ class RaidService {
                 `Could not find details to cancel raid for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`
             );
-            await interaction.deferReply();
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             await interaction.deleteReply();
             return;
         }
@@ -201,7 +223,7 @@ class RaidService {
             `User: ${interaction.user.globalName} (${interaction.user.id}) ` +
             `cancelled raids on channel: ${interaction.channel.name} (${interaction.channel.id})`
         );
-        await interaction.deferReply();
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         
         await this.raidRepository.deleteByChannelId(interaction.channel.id);
         await this.#fetchRaidDetailsMessage(raidDetails)?.delete();
@@ -227,11 +249,31 @@ class RaidService {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(SIGN_BUTTON_CUSTOM_ID)
+                        .setCustomId("mainSquadInfoButton")
+                        .setLabel('>> Główny skład <<')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId(SIGN_MAIN_SQUAD_BUTTON_ID)
                         .setLabel('Zapisz się')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
-                        .setCustomId(UNSUBSCRIBE_BUTTON_CUSTOM_ID)
+                        .setCustomId(UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID)
+                        .setLabel('Wypisz się')
+                        .setStyle(ButtonStyle.Danger)
+                ),
+                new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId("reserveSquadInfoButton")
+                        .setLabel('>>>> Rezerwa <<<<')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId(SIGN_RESERVE_SQUAD_BUTTON_ID)
+                        .setLabel('Zapisz się')
+                        .setStyle(ButtonStyle.Primary),
+                    new ButtonBuilder()
+                        .setCustomId(UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID)
                         .setLabel('Wypisz się')
                         .setStyle(ButtonStyle.Danger)
                 ),
