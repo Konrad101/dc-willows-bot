@@ -149,7 +149,7 @@ class RaidService {
     async unsubscribeFromRaid(interaction, unsubscribeFromMainSquad) {
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
-            console.log(`Could not find details to unsibscribe from raid for channel: ${interaction.channel.id}, ` +
+            console.log(`Could not find details to unsubscribe from raid for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             await interaction.deleteReply();
@@ -173,7 +173,7 @@ class RaidService {
         await interaction.deleteReply();
     }
 
-    async kickPlayerFromRaid(interaction) {
+    async kickPlayerFromRaid(interaction, kickFromMainSquad) {
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(`Could not find details to kick raid member for channel: ${interaction.channel.id}, ` +
@@ -181,8 +181,7 @@ class RaidService {
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             await interaction.deleteReply();
             return;
-        }
-        if (!await this.#interactionUserHasValidRoles(interaction, RAID_MANAGEMENT_ROLES)) {
+        } else if (!await this.#interactionUserHasValidRoles(interaction, RAID_MANAGEMENT_ROLES)) {
             interaction.reply({
                 content: "Brak uprawnień do wyrzucenia gracza z rajdów!",
                 flags: MessageFlags.Ephemeral,
@@ -191,11 +190,18 @@ class RaidService {
         }
 
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-        const userToKick = interaction.options.get("osoba").user;
-        console.log(`${interaction.user.globalName} (${interaction.user.id})` +
-            ` kicks from raid: ${userToKick.globalName} (${userToKick.id})` +
+        const numberToKick = interaction.options.get("numer").value;
+        console.log(`Kicking member on number ${numberToKick}, from main squad: ${kickFromMainSquad}` +
             ` on channel: ${interaction.channel.name} (${interaction.channel.id})`);
-        raidDetails.embedder.removeMember(userToKick.id);
+        
+        const squadList = kickFromMainSquad ? 
+            raidDetails.embedder.getMainSquad() : 
+            raidDetails.embedder.getReserveSquad();
+        const deletedMember = squadList.removeMemberByNumberOnList(numberToKick);
+
+        console.log(`${interaction.user.globalName} (${interaction.user.id})` +
+            ` kicked member: ${deletedMember.userId} from main squad: ${kickFromMainSquad}` +
+            ` on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         this.#updateRaidDetails(raidDetails, raidDetails.embedder.refreshEmbedder());
         await interaction.deleteReply();
     }
@@ -295,7 +301,7 @@ class RaidService {
             message.edit({ embeds: [ embedder ] });
             await this.raidRepository.save(raidDetails);
         } else {
-            console.log(`Could not fetch details message with id ${raidDetails.messageId}`);
+            console.log(`Could not fetch details for message with id ${raidDetails.messageId}`);
         }
     }
 

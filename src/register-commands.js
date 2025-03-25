@@ -1,15 +1,18 @@
 import dotenv from 'dotenv';
 import { REST, Routes } from 'discord.js';
-import { RAID_CREATION_COMMAND_BUILDER } from './raid/commands/raid-creation-command.js';
+import { RAID_MANAGEMENT_COMMAND_BUILDER } from './raid/commands/raid-management-command.js';
 import { RAID_CANCELLATION_COMMAND_BUILDER } from './raid/commands/raid-cancellation-command.js';
-import { RAID_MEMBER_DELETION_COMMAND_BUILDER } from './raid/commands/raid-member-deletion-command.js';
+import { 
+    MAIN_SQUAD_MEMBER_DELETION_COMMAND_BUILDER, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_BUILDER 
+} from './raid/commands/raid-members-deletion-commands.js';
 
 dotenv.config();
 
 const commands = [
-    RAID_CREATION_COMMAND_BUILDER.toJSON(),
+    RAID_MANAGEMENT_COMMAND_BUILDER.toJSON(),
     RAID_CANCELLATION_COMMAND_BUILDER.toJSON(),
-    RAID_MEMBER_DELETION_COMMAND_BUILDER.toJSON(),
+    MAIN_SQUAD_MEMBER_DELETION_COMMAND_BUILDER.toJSON(),
+    RESERVE_SQUAD_MEMBER_DELETION_COMMAND_BUILDER.toJSON(),
 ];
 
 const rest = new REST({version: '10', }).setToken(process.env.DISCORD_TOKEN);
@@ -30,7 +33,3 @@ const rest = new REST({version: '10', }).setToken(process.env.DISCORD_TOKEN);
         console.log(`Unexpected error occurred during command: ${error}`)
     }
 })();
-
-
-
-

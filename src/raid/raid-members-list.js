@@ -33,7 +33,7 @@ class RaidMembersList {
         // TODO: improve error handling: custom exception on if and then private message on discord
         if (this.members.length < number) return;
 
-        this.members.splice(number - 1, 1);
+        return this.members.splice(number - 1, 1)[0];
     }
 
     removeMember(userId) {

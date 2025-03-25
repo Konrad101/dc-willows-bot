@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from 'discord.js';
 
-export const RAID_CREATION_COMMAND_NAME = 'rajdy';
+export const RAID_MANAGEMENT_COMMAND_NAME = 'rajdy';
 
-export const RAID_CREATION_COMMAND_BUILDER = new SlashCommandBuilder()
-    .setName(RAID_CREATION_COMMAND_NAME)
+export const RAID_MANAGEMENT_COMMAND_BUILDER = new SlashCommandBuilder()
+    .setName(RAID_MANAGEMENT_COMMAND_NAME)
     .setDescription('Tworzy listę z zapisami na rajdy')
     .addStringOption(option => 
         option.setName('jakie-rajdy')

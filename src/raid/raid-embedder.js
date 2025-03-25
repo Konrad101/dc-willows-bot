@@ -58,10 +58,10 @@ class RaidEmbedder {
         ];
         
         embedderFields = embedderFields.concat(
-            this.#createRaidMembersFields('Lista graczy:', this.getMainSquad().getMembers(), this.raidParameters.mainSquadMaxPlayers)
+            this.#createRaidMembersFields('Główny skład:', this.getMainSquad().getMembers(), this.raidParameters.mainSquadMaxPlayers)
         );
         embedderFields = embedderFields.concat(
-            this.#createRaidMembersFields('Lista rezerwowa:', this.getReserveSquad().getMembers(), this.raidParameters.reserveSquadMaxPlayers)
+            this.#createRaidMembersFields('Rezerwa:', this.getReserveSquad().getMembers(), this.raidParameters.reserveSquadMaxPlayers)
         );
 
         this.embedder
