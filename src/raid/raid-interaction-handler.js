@@ -6,9 +6,12 @@ import {
 import { 
     WARRIOR_MENU_ID, ARCHER_MENU_ID, MAGE_MENU_ID, MARTIAL_ARTIST_MENU_ID, 
     WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, MAGE_MENU_ID_RESERVE, 
-    MARTIAL_ARTIST_MENU_ID_RESERVE, SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID, 
-    SIGN_RESERVE_SQUAD_BUTTON_ID, UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID
+    MARTIAL_ARTIST_MENU_ID_RESERVE
 } from './raid-service.js';
+import { 
+    SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID, 
+    SIGN_RESERVE_SQUAD_BUTTON_ID, UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID,
+} from './raid-saving-service.js';
 import { InteractionHandler } from '../interaction-handler-contract.js';
 
 export { RaidInteractionHandler };
@@ -32,8 +35,12 @@ class RaidInteractionHandler extends InteractionHandler {
         WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, MAGE_MENU_ID_RESERVE, MARTIAL_ARTIST_MENU_ID_RESERVE,
     ];
 
-    constructor(raidService) {
+    constructor(raidSavingService, raidUnsubscribingService, raidCancellationService, raidMemberSignupService, raidService) {
         super();
+        this.raidSavingService = raidSavingService;
+        this.raidUnsubscribingService = raidUnsubscribingService;
+        this.raidCancellationService = raidCancellationService;
+        this.raidMemberSignupService = raidMemberSignupService;
         this.raidService = raidService;
     }
 
@@ -57,13 +64,17 @@ class RaidInteractionHandler extends InteractionHandler {
 
     #handleCommandInteraction(interaction) {
         if (interaction.commandName === RAID_MANAGEMENT_COMMAND_NAME) {
-            this.raidService.handleRaidInteraction(interaction);
+            this.raidSavingService.handleRaidInteraction(interaction);
         } else if (interaction.commandName === RAID_CANCELLATION_COMMAND_NAME) {
-            this.raidService.cancelRaid(interaction);
+            this.raidCancellationService.cancelRaid(interaction);
         } else if (interaction.commandName === MAIN_SQUAD_MEMBER_DELETION_COMMAND_NAME) {
             this.raidService.kickPlayerFromRaid(interaction, true);
         } else if (interaction.commandName === RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME) {
             this.raidService.kickPlayerFromRaid(interaction, false);
+        } else if (interaction.commandName === MOVE_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME) {
+            
+        } else if (interaction.commandName === MOVE_MEMBER_FROM_RESERVE_COMMAND_NAME) {
+        
         }
     }
 
@@ -71,11 +82,11 @@ class RaidInteractionHandler extends InteractionHandler {
         if (interaction.customId === SIGN_MAIN_SQUAD_BUTTON_ID) {
             this.raidService.displaySpecialistsSelectMenus(interaction, true);
         } else if (interaction.customId === UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID) {
-            this.raidService.unsubscribeFromRaid(interaction, true);
+            this.raidUnsubscribingService.unsubscribeFromMainSquad(interaction);
         } else if (interaction.customId === SIGN_RESERVE_SQUAD_BUTTON_ID) {
             this.raidService.displaySpecialistsSelectMenus(interaction, false);
         } else if (interaction.customId === UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID) {
-            this.raidService.unsubscribeFromRaid(interaction, false);
+            this.raidUnsubscribingService.unsubscribeFromReserveSquad(interaction);
         }
     }
 
@@ -84,12 +95,12 @@ class RaidInteractionHandler extends InteractionHandler {
             || interaction.customId === ARCHER_MENU_ID 
             || interaction.customId === MAGE_MENU_ID
             || interaction.customId === MARTIAL_ARTIST_MENU_ID) {
-            this.raidService.addPlayerFromInteraction(interaction, true);
+            this.raidMemberSignupService.signupToMainSquad(interaction);
         } else if (interaction.customId === WARRIOR_MENU_ID_RESERVE
             || interaction.customId === ARCHER_MENU_ID_RESERVE
             || interaction.customId === MAGE_MENU_ID_RESERVE
             || interaction.customId === MARTIAL_ARTIST_MENU_ID_RESERVE) {
-            this.raidService.addPlayerFromInteraction(interaction, false);
+            this.raidMemberSignupService.signupToReserve(interaction);
         } 
     }
 }

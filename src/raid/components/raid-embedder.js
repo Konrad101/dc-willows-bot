@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
-import { MEMBERS_BATCH_SIZE, EMBEDDER_COLOR } from '../config.js';
-import { RaidMembersList } from './raid-members-list.js';
+import { MEMBERS_BATCH_SIZE, EMBEDDER_COLOR } from '../../config.js';
+import { RaidMembersList } from '../raid-members-list.js';
 
 export { RaidEmbedder };
 

@@ -113,4 +113,4 @@ const EMBEDDER_COLOR = 0x9400FF;
 // Albo ścieżka do pliku, 
 // albo wpisać :memory:
 // żeby trzymało rajdy w pamięci (po restarcie apki - nie będzie się dało nic edytować)
-const DB_FILE_PATH = "raids.db";
+const DB_FILE_PATH = ":memory:";

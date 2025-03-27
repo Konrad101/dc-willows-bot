@@ -25,6 +25,10 @@ class RaidMembersList {
         return this.members.some(member => member.userId === userId);
     }
 
+    isFull() {
+        return this.members.length >= this.maxMembers;
+    }
+
     getMembers() {
         return this.members;
     }

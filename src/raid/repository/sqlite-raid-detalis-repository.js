@@ -1,7 +1,7 @@
 import { RaidDetailsRepository } from "./raid-details-repository-contract.js";
 import { DataTypes, Sequelize } from 'sequelize';
-import { RaidDetails } from "./raid-details.js";
-import { RaidEmbedder } from "../raid-embedder.js";
+import { RaidEmbedder } from "../components/raid-embedder.js";
+import { RaidDetails } from "../raid-details.js";
 import { RaidMembersList } from "../raid-members-list.js";
 
 export { SqliteRaidDetailsRepository };

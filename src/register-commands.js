@@ -5,6 +5,9 @@ import { RAID_CANCELLATION_COMMAND_BUILDER } from './raid/commands/raid-cancella
 import { 
     MAIN_SQUAD_MEMBER_DELETION_COMMAND_BUILDER, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_BUILDER 
 } from './raid/commands/raid-members-deletion-commands.js';
+import { 
+    MOVE_MEMBER_FROM_MAIN_SQUAD_COMMAND_BUILDER, MOVE_MEMBER_FROM_RESERVE_COMMAND_BUILDER 
+} from './raid/commands/raid-members-moving-commands.js';
 
 dotenv.config();
 
@@ -13,6 +16,8 @@ const commands = [
     RAID_CANCELLATION_COMMAND_BUILDER.toJSON(),
     MAIN_SQUAD_MEMBER_DELETION_COMMAND_BUILDER.toJSON(),
     RESERVE_SQUAD_MEMBER_DELETION_COMMAND_BUILDER.toJSON(),
+    MOVE_MEMBER_FROM_MAIN_SQUAD_COMMAND_BUILDER.toJSON(),
+    MOVE_MEMBER_FROM_RESERVE_COMMAND_BUILDER.toJSON(),
 ];
 
 const rest = new REST({version: '10', }).setToken(process.env.DISCORD_TOKEN);
