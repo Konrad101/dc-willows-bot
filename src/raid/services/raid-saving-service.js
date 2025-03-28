@@ -1,11 +1,11 @@
 import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
 import { ButtonStyle, MessageFlags } from 'discord.js';
 
-import { interactionUserHasValidRoles } from '../util/user-role-validator.js';
-import { RaidEmbedder } from './components/raid-embedder.js';
-import { RaidDetails } from './raid-details.js';
-import { RaidParameters } from './raid-parameters.js';
-import { RAID_MANAGEMENT_ROLES } from '../config.js';
+import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
+import { RaidEmbedder } from '../components/raid-embedder.js';
+import { RaidDetails } from '../raid-details.js';
+import { RaidParameters } from '../raid-parameters.js';
+import { RAID_MANAGEMENT_ROLES } from '../../config.js';
 
 export { 
     RaidSavingService, SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID,

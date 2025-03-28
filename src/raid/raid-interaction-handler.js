@@ -4,14 +4,19 @@ import {
     MAIN_SQUAD_MEMBER_DELETION_COMMAND_NAME, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME 
 } from './commands/raid-members-deletion-commands.js';
 import { 
-    WARRIOR_MENU_ID, ARCHER_MENU_ID, MAGE_MENU_ID, MARTIAL_ARTIST_MENU_ID, 
-    WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, MAGE_MENU_ID_RESERVE, 
-    MARTIAL_ARTIST_MENU_ID_RESERVE
-} from './raid-service.js';
-import { 
     SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID, 
     SIGN_RESERVE_SQUAD_BUTTON_ID, UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID,
-} from './raid-saving-service.js';
+} from './services/raid-saving-service.js';
+import { RaidSavingService } from './services/raid-saving-service.js';
+import { RaidUnsubscribingService } from './services/raid-unsubscribing-service.js';
+import { RaidCancellationService } from './services/raid-cancellation-service.js';
+import { RaidMemberSignupService } from './services/raid-member-signup-service.js';
+import { RaidMemberKickingService } from './services/raid-member-kicking-service.js';
+import { 
+    RaidSpecialistSelectionService, WARRIOR_MENU_ID, ARCHER_MENU_ID, MAGE_MENU_ID, 
+    MARTIAL_ARTIST_MENU_ID, WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, 
+    MAGE_MENU_ID_RESERVE, MARTIAL_ARTIST_MENU_ID_RESERVE 
+} from './services/raid-specialist-selection-service.js';
 import { InteractionHandler } from '../interaction-handler-contract.js';
 
 export { RaidInteractionHandler };
@@ -35,13 +40,14 @@ class RaidInteractionHandler extends InteractionHandler {
         WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, MAGE_MENU_ID_RESERVE, MARTIAL_ARTIST_MENU_ID_RESERVE,
     ];
 
-    constructor(raidSavingService, raidUnsubscribingService, raidCancellationService, raidMemberSignupService, raidService) {
+    constructor(messageFetcher, raidRepository) {
         super();
-        this.raidSavingService = raidSavingService;
-        this.raidUnsubscribingService = raidUnsubscribingService;
-        this.raidCancellationService = raidCancellationService;
-        this.raidMemberSignupService = raidMemberSignupService;
-        this.raidService = raidService;
+        this.raidSavingService = new RaidSavingService(messageFetcher, raidRepository);
+        this.raidUnsubscribingService = new RaidUnsubscribingService(messageFetcher, raidRepository);
+        this.raidCancellationService = new RaidCancellationService(messageFetcher, raidRepository);
+        this.raidMemberSignupService = new RaidMemberSignupService(messageFetcher, raidRepository);
+        this.raidSpecialistSelectionService = new RaidSpecialistSelectionService();
+        this.raidMemberKickingService = new RaidMemberKickingService(messageFetcher, raidRepository);
     }
 
     handle(interaction) {
@@ -68,9 +74,9 @@ class RaidInteractionHandler extends InteractionHandler {
         } else if (interaction.commandName === RAID_CANCELLATION_COMMAND_NAME) {
             this.raidCancellationService.cancelRaid(interaction);
         } else if (interaction.commandName === MAIN_SQUAD_MEMBER_DELETION_COMMAND_NAME) {
-            this.raidService.kickPlayerFromRaid(interaction, true);
+            this.raidMemberKickingService.kickMainSquadMember(interaction);
         } else if (interaction.commandName === RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME) {
-            this.raidService.kickPlayerFromRaid(interaction, false);
+            this.raidMemberKickingService.kickReserveMember(interaction);
         } else if (interaction.commandName === MOVE_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME) {
             
         } else if (interaction.commandName === MOVE_MEMBER_FROM_RESERVE_COMMAND_NAME) {
@@ -80,11 +86,11 @@ class RaidInteractionHandler extends InteractionHandler {
 
     #handleButtonInteraction(interaction) {
         if (interaction.customId === SIGN_MAIN_SQUAD_BUTTON_ID) {
-            this.raidService.displaySpecialistsSelectMenus(interaction, true);
+            this.raidSpecialistSelectionService.displayMainSquadSpecialistsSelectMenu(interaction);
         } else if (interaction.customId === UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID) {
             this.raidUnsubscribingService.unsubscribeFromMainSquad(interaction);
         } else if (interaction.customId === SIGN_RESERVE_SQUAD_BUTTON_ID) {
-            this.raidService.displaySpecialistsSelectMenus(interaction, false);
+            this.raidSpecialistSelectionService.displayReserveSpecialistsSelectMenu(interaction);
         } else if (interaction.customId === UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID) {
             this.raidUnsubscribingService.unsubscribeFromReserveSquad(interaction);
         }

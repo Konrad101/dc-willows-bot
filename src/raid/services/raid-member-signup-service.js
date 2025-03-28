@@ -1,8 +1,8 @@
 import { MessageFlags } from 'discord.js';
 
-import { interactionUserHasValidRoles } from '../util/user-role-validator.js';
-import { memberFromInteraction } from './raid-member.js';
-import { SIGN_TO_RAID_ROLES } from '../config.js';
+import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
+import { memberFromInteraction } from '../raid-member.js';
+import { SIGN_TO_RAID_ROLES } from '../../config.js';
 
 export { RaidMemberSignupService };
 

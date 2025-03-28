@@ -1,7 +1,7 @@
 import { MessageFlags } from 'discord.js';
 
-import { interactionUserHasValidRoles } from '../util/user-role-validator.js';
-import { RAID_MANAGEMENT_ROLES } from '../config.js';
+import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
+import { RAID_MANAGEMENT_ROLES } from '../../config.js';
 
 export { RaidCancellationService };
 
