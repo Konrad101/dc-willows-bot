@@ -40,13 +40,22 @@ class RaidMemberKickingService {
             return;
         }
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const numberToKick = interaction.options.get("numer").value;
-        
-        const squadList = kickFromMainSquad ? 
+        const squadList = kickFromMainSquad ?
             raidDetails.embedder.getMainSquad() : 
             raidDetails.embedder.getReserveSquad();
-        const deletedMember = squadList.removeMemberByNumberOnList(numberToKick);
+        let deletedMember = null;
+        try {
+            deletedMember = squadList.removeMemberByNumberOnList(numberToKick);
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        } catch(err) {
+            const listName = kickFromMainSquad ? "głównego składu" : "rezerwowej";
+            interaction.reply({
+                content: `Brak numeru ${numberToKick} do usunięcia na liście ${listName}!`,
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
 
         console.log(`${interaction.user.globalName} (${interaction.user.id})` +
             ` kicked member: ${deletedMember.userId} (number: ${numberToKick})` +

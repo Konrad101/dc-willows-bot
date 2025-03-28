@@ -34,8 +34,7 @@ class RaidMembersList {
     }
 
     removeMemberByNumberOnList(number) {
-        // TODO: improve error handling: custom exception on if and then private message on discord
-        if (this.members.length < number) return;
+        if (this.members.length < number) throw "Number does not exist on the list!";
 
         return this.members.splice(number - 1, 1)[0];
     }
