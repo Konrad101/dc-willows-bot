@@ -51,6 +51,7 @@ class RaidSavingService {
             interaction.options.get("czas-trwania").value,
             interaction.options.get("lider").user.id,
             interaction.options.get("gdzie-i-kiedy-zbiorka").value,
+            interaction.options.get("odpal")?.value,
             interaction.options.get("wymagania")?.value,
             interaction.options.get("max-liczba-osob")?.value ?? 15,
             interaction.options.get("rezerwa-max-liczba-osob")?.value ?? 10,

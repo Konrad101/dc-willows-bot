@@ -1,4 +1,4 @@
-import { RAID_MANAGEMENT_COMMAND_NAME } from './commands/raid-management-command.js';
+import { RAID_SAVING_COMMAND_NAME } from './commands/raid-saving-command.js';
 import { RAID_CANCELLATION_COMMAND_NAME } from './commands/raid-cancellation-command.js';
 import { 
     MAIN_SQUAD_MEMBER_DELETION_COMMAND_NAME, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME 
@@ -30,7 +30,7 @@ class RaidInteractionHandler extends InteractionHandler {
 
     RAID_INTERACTIONS_COMMAND_NAMES = [
         // commands
-        RAID_MANAGEMENT_COMMAND_NAME, RAID_CANCELLATION_COMMAND_NAME, 
+        RAID_SAVING_COMMAND_NAME, RAID_CANCELLATION_COMMAND_NAME, 
         MAIN_SQUAD_MEMBER_DELETION_COMMAND_NAME, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME,
         TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME, TRANSFER_MEMBER_FROM_RESERVE_COMMAND_NAME 
     ];
@@ -75,7 +75,7 @@ class RaidInteractionHandler extends InteractionHandler {
     }
 
     #handleCommandInteraction(interaction) {
-        if (interaction.commandName === RAID_MANAGEMENT_COMMAND_NAME) {
+        if (interaction.commandName === RAID_SAVING_COMMAND_NAME) {
             this.raidSavingService.handleRaidInteraction(interaction);
         } else if (interaction.commandName === RAID_CANCELLATION_COMMAND_NAME) {
             this.raidCancellationService.cancelRaid(interaction);

@@ -27,6 +27,8 @@ class RaidMemberSignupService {
     }
 
     async #signupRaidMember(interaction, mainSquadSignup) {
+        // TODO: verify if member can signup to main squad - has proper role - priority
+
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(`Could not find details to signup for channel: ${interaction.channel.id}, ` +

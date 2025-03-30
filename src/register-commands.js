@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { REST, Routes } from 'discord.js';
 
-import { RAID_MANAGEMENT_COMMAND_BUILDER } from './raid/commands/raid-management-command.js';
+import { RAID_SAVING_COMMAND_BUILDER } from './raid/commands/raid-saving-command.js';
 import { RAID_CANCELLATION_COMMAND_BUILDER } from './raid/commands/raid-cancellation-command.js';
 import { 
     MAIN_SQUAD_MEMBER_DELETION_COMMAND_BUILDER, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_BUILDER 
@@ -13,7 +13,7 @@ import {
 dotenv.config();
 
 const commands = [
-    RAID_MANAGEMENT_COMMAND_BUILDER.toJSON(),
+    RAID_SAVING_COMMAND_BUILDER.toJSON(),
     RAID_CANCELLATION_COMMAND_BUILDER.toJSON(),
     MAIN_SQUAD_MEMBER_DELETION_COMMAND_BUILDER.toJSON(),
     RESERVE_SQUAD_MEMBER_DELETION_COMMAND_BUILDER.toJSON(),

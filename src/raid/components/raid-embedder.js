@@ -47,15 +47,19 @@ class RaidEmbedder {
     }
 
     #applyRaidParamsToEmbedder() {
-        // TODO: determine if fields are OK
         let embedderFields = [
             { name: 'Ile czasu:', value: `${this.raidParameters.duration}`, inline: true },
             { name: 'Lider:', value: `<@${this.raidParameters.leaderId}>`, inline: true },
             { name: 'Zbiórka:', value: `${this.raidParameters.gathering}`, inline: true },
-            { name: 'Odpał:', value: `Poty, tarot, pety` },
-            { name: 'Wymagania:', value: `${this.raidParameters.requirements}` },
-            { name: '\u200B', value: '\u200B' },
         ];
+        if (this.raidParameters.buffs !== undefined) {
+            embedderFields.push({ name: 'Odpał:', value: `${this.raidParameters.buffs}` });
+        }
+        if (this.raidParameters.requirements !== undefined) {
+            embedderFields.push({ name: 'Wymagania:', value: `${this.raidParameters.requirements}` });
+        }
+        // add blank space between params and lists
+        embedderFields.push({ name: '\u200B', value: '\u200B' });
         
         embedderFields = embedderFields.concat(
             this.#createRaidMembersFields('Główny skład:', this.getMainSquad().getMembers(), this.raidParameters.mainSquadMaxPlayers)

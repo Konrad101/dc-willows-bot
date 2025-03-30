@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from 'discord.js';
 
-export const RAID_MANAGEMENT_COMMAND_NAME = 'rajdy';
+export const RAID_SAVING_COMMAND_NAME = 'rajdy';
 
-export const RAID_MANAGEMENT_COMMAND_BUILDER = new SlashCommandBuilder()
-    .setName(RAID_MANAGEMENT_COMMAND_NAME)
+export const RAID_SAVING_COMMAND_BUILDER = new SlashCommandBuilder()
+    .setName(RAID_SAVING_COMMAND_NAME)
     .setDescription('Tworzy listę z zapisami na rajdy')
     .addStringOption(option => 
         option.setName('jakie-rajdy')
@@ -29,6 +29,10 @@ export const RAID_MANAGEMENT_COMMAND_BUILDER = new SlashCommandBuilder()
         option.setName('gdzie-i-kiedy-zbiorka')
             .setDescription('Miejsce, kanał zbiórki i godzina (np. Ain k6 18:30)')
             .setRequired(true))
+    .addStringOption(option => 
+        option.setName('odpal')
+            .setDescription('Odpał na rajdy (np. poty atak/def, tarot)')
+            .setRequired(false))
     .addStringOption(option => 
         option.setName('wymagania')
             .setDescription('Wymagania na rajdy (np. 2 ręce i mózg)')
