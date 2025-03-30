@@ -16,13 +16,13 @@ class RaidMemberSignupService {
 
     async signupToMainSquad(interaction) {
         console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
-            `is trying to sign to main squad on channel: ${interaction.channel.name} (${interaction.channel.id})`);
+            `is signing to main squad on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         this.#signupRaidMember(interaction, true);
     }
 
     async signupToReserve(interaction) {
         console.log(`User: ${interaction.user.globalName} (${interaction.user.id}) ` + 
-            `is trying to sign to reserve on channel: ${interaction.channel.name} (${interaction.channel.id})`);
+            `is signing to reserve on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         this.#signupRaidMember(interaction, false);
     }
 

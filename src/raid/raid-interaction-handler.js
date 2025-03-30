@@ -2,7 +2,10 @@ import { RAID_MANAGEMENT_COMMAND_NAME } from './commands/raid-management-command
 import { RAID_CANCELLATION_COMMAND_NAME } from './commands/raid-cancellation-command.js';
 import { 
     MAIN_SQUAD_MEMBER_DELETION_COMMAND_NAME, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME 
-} from './commands/raid-members-deletion-commands.js';
+} from './commands/raid-member-deletion-commands.js';
+import { 
+    TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME, TRANSFER_MEMBER_FROM_RESERVE_COMMAND_NAME 
+} from './commands/raid-member-transfer-commands.js';
 import { 
     SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID, 
     SIGN_RESERVE_SQUAD_BUTTON_ID, UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID,
@@ -12,6 +15,7 @@ import { RaidUnsubscribingService } from './services/raid-unsubscribing-service.
 import { RaidCancellationService } from './services/raid-cancellation-service.js';
 import { RaidMemberSignupService } from './services/raid-member-signup-service.js';
 import { RaidMemberKickingService } from './services/raid-member-kicking-service.js';
+import { RaidMemberTransferService } from './services/raid-member-transfer-service.js';
 import { 
     RaidSpecialistSelectionService, WARRIOR_MENU_ID, ARCHER_MENU_ID, MAGE_MENU_ID, 
     MARTIAL_ARTIST_MENU_ID, WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, 
@@ -28,6 +32,7 @@ class RaidInteractionHandler extends InteractionHandler {
         // commands
         RAID_MANAGEMENT_COMMAND_NAME, RAID_CANCELLATION_COMMAND_NAME, 
         MAIN_SQUAD_MEMBER_DELETION_COMMAND_NAME, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME,
+        TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME, TRANSFER_MEMBER_FROM_RESERVE_COMMAND_NAME 
     ];
 
     RAID_INTERACTIONS_CUSTOM_IDS = [ 
@@ -48,6 +53,7 @@ class RaidInteractionHandler extends InteractionHandler {
         this.raidMemberSignupService = new RaidMemberSignupService(messageFetcher, raidRepository);
         this.raidSpecialistSelectionService = new RaidSpecialistSelectionService();
         this.raidMemberKickingService = new RaidMemberKickingService(messageFetcher, raidRepository);
+        this.raidMemberTransferService = new RaidMemberTransferService(messageFetcher, raidRepository);
     }
 
     handle(interaction) {
@@ -77,10 +83,10 @@ class RaidInteractionHandler extends InteractionHandler {
             this.raidMemberKickingService.kickMainSquadMember(interaction);
         } else if (interaction.commandName === RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME) {
             this.raidMemberKickingService.kickReserveMember(interaction);
-        } else if (interaction.commandName === MOVE_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME) {
-            
-        } else if (interaction.commandName === MOVE_MEMBER_FROM_RESERVE_COMMAND_NAME) {
-        
+        } else if (interaction.commandName === TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME) {
+            this.raidMemberTransferService.transferMainSquadMemberToReserve(interaction);
+        } else if (interaction.commandName === TRANSFER_MEMBER_FROM_RESERVE_COMMAND_NAME) {
+            this.raidMemberTransferService.transferReserveMemberToMainSquad(interaction);
         }
     }
 

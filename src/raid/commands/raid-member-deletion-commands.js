@@ -7,6 +7,8 @@ export const MAIN_SQUAD_MEMBER_DELETION_COMMAND_BUILDER = new SlashCommandBuilde
     .setDescription('Wyrzuca osobę z danego numerka listy głównego składu')
     .addIntegerOption(option =>
         option.setName('numer')
+            .setMinValue(1)
+            .setMaxValue(50)
             .setDescription('Numer osoby na liście (np. 1)')
             .setRequired(true));
 
@@ -18,5 +20,7 @@ export const RESERVE_SQUAD_MEMBER_DELETION_COMMAND_BUILDER = new SlashCommandBui
     .setDescription('Wyrzuca osobę z danego numerka listy rezerwowej')
     .addIntegerOption(option =>
         option.setName('numer')
+            .setMinValue(1)
+            .setMaxValue(50)
             .setDescription('Numer osoby na rezerwie (np. 1)')
             .setRequired(true));
