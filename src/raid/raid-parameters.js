@@ -3,8 +3,7 @@ export { RaidParameters };
 class RaidParameters {
 
     constructor(whatRaid,
-                date,
-                time,
+                startTimestamp,
                 duration,
                 leaderId,
                 gathering,
@@ -13,8 +12,7 @@ class RaidParameters {
                 mainSquadMaxPlayers,
                 reserveSquadMaxPlayers) {
         this.whatRaid = whatRaid;
-        this.date = date;
-        this.time = time;
+        this.startTimestamp = startTimestamp;
         this.duration = duration;
         this.leaderId = leaderId;
         this.gathering = gathering;

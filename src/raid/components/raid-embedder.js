@@ -1,4 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
+import { DateTime } from 'luxon';
+
 import { MEMBERS_BATCH_SIZE, EMBEDDER_COLOR } from '../../config.js';
 import { RaidMembersList } from '../raid-members-list.js';
 
@@ -35,9 +37,6 @@ class RaidEmbedder {
         return this.embedder;
     }
     
-    /**
-     * Necessary in order to send DM to raid members before start.
-     */
     getMainSquad() {
         return this.mainSquadList;
     }
@@ -69,8 +68,13 @@ class RaidEmbedder {
         );
 
         this.embedder
-            .setTitle(`${this.raidParameters.date}, ${this.raidParameters.time}\nmaraton rajdów: ${this.raidParameters.whatRaid}`)
+            .setTitle(`${this.#formatRaidDateTime()}\nmaraton rajdów: ${this.raidParameters.whatRaid}`)
             .setFields(embedderFields);
+    }
+
+    #formatRaidDateTime() {
+        const raidDateTime = DateTime.fromMillis(this.raidParameters.startTimestamp);
+        return raidDateTime.setLocale("pl").toFormat("dd MMMM yyyy, HH:mm");
     }
 
     #createRaidMembersFields(fieldName, raidMembers, maxPlayers) {

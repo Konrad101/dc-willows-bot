@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
 import { ButtonStyle, MessageFlags } from 'discord.js';
+import { DateTime } from 'luxon';
 
 import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
 import { RaidEmbedder } from '../components/raid-embedder.js';
@@ -19,6 +20,8 @@ const UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID = "unsubscribeFromReserveSquadButton";
 
 class RaidSavingService {
 
+    INVALID_DATETIME_ERROR = "INVALID_DATETIME";
+
     constructor(messageFetcher, raidRepository) {
         this.messageFetcher = messageFetcher;
         this.raidRepository = raidRepository;
@@ -33,9 +36,26 @@ class RaidSavingService {
             return;
         }
 
-        const raidParameters = await this.#extractRaidParametersFromInteraction(interaction);
-        const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
+        let raidParameters;
+        try {
+            raidParameters = await this.#extractRaidParametersFromInteraction(interaction);
+        } catch (err) {
+            if (err === this.INVALID_DATETIME_ERROR) {
+                interaction.reply({
+                    content: "Podano nieprawidłową datę rajdów!",
+                    flags: MessageFlags.Ephemeral,
+                });
+            } else {
+                interaction.reply({
+                    content: "Podano błędny parametr rajdu!",
+                    flags: MessageFlags.Ephemeral,
+                });
+            }
+            
+            return;
+        }
 
+        const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails !== null) {
             this.#editRaid(interaction, raidDetails, raidParameters);
         } else {
@@ -44,10 +64,18 @@ class RaidSavingService {
     }
 
     async #extractRaidParametersFromInteraction(interaction) {
+        const time = interaction.options.get("godzina").value;
+        const date = interaction.options.get("dzien").value;
+        const dateTime = DateTime.fromFormat(
+            `${date} ${time}`,
+            "dd.MM.yyyy HH:mm",
+            { zone: "Europe/Berlin" }
+        );
+        if (!dateTime.isValid) throw this.INVALID_DATETIME_ERROR;
+        
         return new RaidParameters(
             interaction.options.get("jakie-rajdy").value,
-            interaction.options.get("dzien").value,
-            interaction.options.get("godzina").value,
+            dateTime.toMillis(),
             interaction.options.get("czas-trwania").value,
             interaction.options.get("lider").user.id,
             interaction.options.get("gdzie-i-kiedy-zbiorka").value,
