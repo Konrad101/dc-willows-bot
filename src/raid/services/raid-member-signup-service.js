@@ -1,8 +1,9 @@
 import { MessageFlags } from 'discord.js';
+import { DateTime, Duration } from 'luxon';
 
 import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
 import { memberFromInteraction } from '../raid-member.js';
-import { SIGN_TO_RAID_ROLES } from '../../config.js';
+import { SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES } from '../../config.js';
 
 export { RaidMemberSignupService };
 
@@ -27,9 +28,23 @@ class RaidMemberSignupService {
     }
 
     async #signupRaidMember(interaction, mainSquadSignup) {
-        // TODO: verify if member can signup to main squad - has proper role - priority
-
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
+        if (!await this.#validateIfSignupCanBePerformed(interaction, raidDetails, mainSquadSignup)) {
+            return;
+        }
+
+        const squadList = mainSquadSignup ? 
+            raidDetails.embedder.getMainSquad() : 
+            raidDetails.embedder.getReserveSquad();
+        this.#performSignupToList(interaction, raidDetails, squadList);
+    }
+
+    /**
+     * Validates conditions if user can singup to raids.
+     * Returns true if validation passed successfully,
+     * otherwise returns false.
+     */
+    async #validateIfSignupCanBePerformed(interaction, raidDetails, mainSquadSignup) {
         if (raidDetails === null) {
             console.log(`Could not find details to signup for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
@@ -39,19 +54,33 @@ class RaidMemberSignupService {
                 components: [],
             });
             await interaction.deleteReply();
-            return;
+            return false;
         } else if (!await interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
             interaction.reply({
                 content: "Brak uprawnień do zapisania się na rajdy!",
                 flags: MessageFlags.Ephemeral,
             });
-            return;
+            return false;
+        } else if (mainSquadSignup && 
+            await this.#priorityIsOnForRaid(raidDetails) &&
+            !await interactionUserHasValidRoles(interaction, RAIDS_PRIORITY_ROLES)) {
+            
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            interaction.webhook.editMessage(interaction.message, {
+                content: "Brak możliwości zapisu na główną listę, trwa priorytet!",
+                components: [],
+            });
+            await interaction.deleteReply();
+            return false;
         }
 
-        const squadList = mainSquadSignup ? 
-            raidDetails.embedder.getMainSquad() : 
-            raidDetails.embedder.getReserveSquad();
-        this.#performSignupToList(interaction, raidDetails, squadList);
+        return true;
+    }
+
+    async #priorityIsOnForRaid(raidDetails) {
+        const raidStartTimestamp = raidDetails.embedder.raidParameters.startTimestamp;
+        const zeroPriorityDuration = Duration.fromObject({ hours: 24 });
+        return raidStartTimestamp > DateTime.now().plus(zeroPriorityDuration).toMillis();
     }
 
     async #performSignupToList(interaction, raidDetails, squadList) {

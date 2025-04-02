@@ -1,6 +1,6 @@
 
 export { 
-    RESERVE_ROLES, RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES,
+    RESERVE_ROLES, RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES,
     WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU,
     MEMBERS_BATCH_SIZE, EMBEDDER_COLOR,
     DB_FILE_PATH
@@ -19,8 +19,11 @@ const RESERVE_ROLES = [ "Warn" ];
 //  - wyrzucanie osób z rajdów
 const RAID_MANAGEMENT_ROLES = [ "MaratończykPlus", "Admin" ]; 
 
-// Rola pozwalająca się zapisać na rajd.
+// Role pozwalające się zapisać na rajd.
 const SIGN_TO_RAID_ROLES = [ "maratończyk", "MaratończykPlus" ];
+
+// Role pozwalające się zapisywać podczas priorytetu.
+const RAIDS_PRIORITY_ROLES = [ "Famowicz" ];
 
 
 // -------------------------------------------
