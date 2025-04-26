@@ -2,7 +2,7 @@
 export { 
     RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES,
     WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU,
-    MEMBERS_BATCH_SIZE, EMBEDDER_COLOR,
+    MEMBERS_BATCH_SIZE, EMBEDDER_COLOR, TIME_ZONE_CODE, TIME_ZONE_LABEL,
     END_OF_PRIORITY_DURATION, REMINDER_BEFORE_RAID_EXECUTION_DURATION, EXPIRED_RAIDS_DURATION,
     DB_FILE_PATH
 };
@@ -15,6 +15,7 @@ export {
 //  - edycja rajdów
 //  - anulowanie rajdów
 //  - wyrzucanie osób z rajdów
+//  - przerzucanie osób między listami
 const RAID_MANAGEMENT_ROLES = [ "MaratończykPlus", "Admin" ]; 
 
 // Role pozwalające się zapisać na rajd.
@@ -107,6 +108,16 @@ const MEMBERS_BATCH_SIZE = 2;
 
 // Kolor paska po lewej stronie embeddera w wartości heksadecymalnej.
 const EMBEDDER_COLOR = 0x9400FF;
+
+
+// ----------------------------
+// Konfiguracja stref czasowych.
+
+// Kod strefy czasowej w jakiej ma być interpretowany czas.
+const TIME_ZONE_CODE = "Europe/Warsaw"
+
+// Nazwa strefy czasowej wyświetlana przy info o rajdach.
+const TIME_ZONE_LABEL = "CEST"
 
 
 // ----------------------------

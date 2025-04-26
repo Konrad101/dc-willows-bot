@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 import { DateTime } from 'luxon';
 
-import { MEMBERS_BATCH_SIZE, EMBEDDER_COLOR } from '../../config.js';
+import { MEMBERS_BATCH_SIZE, EMBEDDER_COLOR, TIME_ZONE_CODE, TIME_ZONE_LABEL } from '../../config.js';
 import { RaidMembersList } from '../raid-members-list.js';
 
 export { RaidEmbedder };
@@ -68,13 +68,13 @@ class RaidEmbedder {
         );
 
         this.embedder
-            .setTitle(`${this.#formatRaidDateTime()}\nmaraton rajdów: ${this.raidParameters.whatRaid}`)
+            .setTitle(`${this.#formatRaidDateTime()} (${TIME_ZONE_LABEL})\nmaraton rajdów: ${this.raidParameters.whatRaid}`)
             .setFields(embedderFields);
     }
 
     #formatRaidDateTime() {
         const raidDateTime = DateTime.fromMillis(this.raidParameters.startTimestamp);
-        return raidDateTime.setLocale("pl").toFormat("dd.MM.yyyy, HH:mm");
+        return raidDateTime.setZone(TIME_ZONE_CODE).toFormat("dd.MM.yyyy, HH:mm");
     }
 
     #createRaidMembersFields(fieldName, raidMembers, maxPlayers) {

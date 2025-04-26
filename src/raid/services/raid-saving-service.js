@@ -6,7 +6,7 @@ import { interactionUserHasValidRoles } from '../../util/user-role-validator.js'
 import { RaidEmbedder } from '../components/raid-embedder.js';
 import { RaidDetails } from '../raid-details.js';
 import { RaidParameters } from '../raid-parameters.js';
-import { RAID_MANAGEMENT_ROLES } from '../../config.js';
+import { RAID_MANAGEMENT_ROLES, TIME_ZONE_CODE } from '../../config.js';
 
 export { 
     RaidSavingService, SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID,
@@ -71,7 +71,7 @@ class RaidSavingService {
         const dateTime = DateTime.fromFormat(
             `${date} ${time}`,
             "dd.MM.yyyy HH:mm",
-            { zone: "Europe/Berlin" }
+            { zone: TIME_ZONE_CODE }
         );
         if (!dateTime.isValid) throw this.INVALID_DATETIME_ERROR;
         
