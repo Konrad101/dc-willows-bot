@@ -143,7 +143,7 @@ class RaidSavingService {
             `edits raids on channel: ${interaction.channel.name} (${interaction.channel.id})`);
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         
-        const message = this.messageFetcher.fetchMessageFromChannel(
+        const message = await this.messageFetcher.fetchMessageFromChannel(
             raidDetails.messageId, 
             raidDetails.channelId
         );

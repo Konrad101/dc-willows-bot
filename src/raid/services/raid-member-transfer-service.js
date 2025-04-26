@@ -69,7 +69,7 @@ class RaidMemberTransferService {
         }
 
         transferToList.addMember(memberToTransfer);
-        const message = this.messageFetcher.fetchMessageFromChannel(raidDetails.messageId, raidDetails.channelId);
+        const message = await this.messageFetcher.fetchMessageFromChannel(raidDetails.messageId, raidDetails.channelId);
         if (message !== null) {
             message.edit({ embeds: [ raidDetails.embedder.refreshEmbedder() ] });
             this.raidRepository.save(raidDetails);

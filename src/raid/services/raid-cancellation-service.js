@@ -40,8 +40,8 @@ class RaidCancellationService {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         
         await this.raidRepository.deleteByChannelId(interaction.channel.id);
-        await this.messageFetcher.fetchMessageFromChannel(raidDetails.messageId, raidDetails.channelId)
-            ?.delete();
+        const message = await this.messageFetcher.fetchMessageFromChannel(raidDetails.messageId, raidDetails.channelId);
+        message?.delete();
         this.raidSchedulersManager.cancelChannelSchedulers(interaction.channel.id);
 
         await interaction.deleteReply();

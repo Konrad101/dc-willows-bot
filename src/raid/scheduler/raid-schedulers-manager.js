@@ -92,11 +92,11 @@ class RaidSchedulersManager {
         const raidDateTime = DateTime.fromMillis(raidsTimestamp);
         return scheduleJob(
             raidDateTime.plus(autoDeletionDuration).toMillis(), 
-            () => {
+            async () => {
                 console.log(`[scheduled] auto deletion of raids list from channel: ${channelId}`);
                 this.raidDetailsRepository.deleteByChannelId(channelId);
-                this.messageFetcher.fetchMessageFromChannel(messageId, channelId)
-                    ?.edit({ content: "🗑️ Zapisy na rajdy zostały usunięte automatycznie", embeds: [], components: [] });
+                const embedderMessage = await this.messageFetcher.fetchMessageFromChannel(messageId, channelId);
+                embedderMessage?.edit({ content: "🗑️ Zapisy na rajdy zostały usunięte automatycznie", embeds: [], components: [] });
             }
         );
     }

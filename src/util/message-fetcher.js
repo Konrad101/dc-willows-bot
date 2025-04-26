@@ -10,14 +10,16 @@ class MessageFetcher {
     /**
      * Returns either existing message or null if it does not exist.
      */
-    fetchMessageFromChannel(messageId, channelId) {
-        const fetchedMessage = this.guild
-            .channels.cache
-            .get(channelId)
-            .messages.cache
-            .find(message => message.id === messageId);
-        
-        return fetchedMessage !== undefined ? fetchedMessage : null; 
+    async fetchMessageFromChannel(messageId, channelId) {
+        try {
+            return await this.guild
+                .channels.cache
+                .get(channelId)
+                .messages
+                .fetch(messageId);
+        } catch (ignored) {
+            return null;
+        }
     }
 
 }

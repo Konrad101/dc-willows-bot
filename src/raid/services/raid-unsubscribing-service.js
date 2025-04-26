@@ -48,7 +48,7 @@ class RaidUnsubscribingService {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         squadList.removeMember(interaction.user.id);
-        const message = this.messageFetcher.fetchMessageFromChannel(
+        const message = await this.messageFetcher.fetchMessageFromChannel(
             raidDetails.messageId, 
             raidDetails.channelId
         );

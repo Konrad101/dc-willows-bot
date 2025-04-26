@@ -60,7 +60,7 @@ class RaidMemberKickingService {
         console.log(`${interaction.user.globalName} (${interaction.user.id})` +
             ` kicked member: ${deletedMember.userId} (number: ${numberToKick})` +
             ` on channel: ${interaction.channel.name} (${interaction.channel.id})`);
-        const message = this.messageFetcher.fetchMessageFromChannel(raidDetails.messageId, raidDetails.channelId);
+        const message = await this.messageFetcher.fetchMessageFromChannel(raidDetails.messageId, raidDetails.channelId);
         if (message !== null) {
             message.edit({ embeds: [ raidDetails.embedder.refreshEmbedder() ] });
             await this.raidRepository.save(raidDetails);
