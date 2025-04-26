@@ -22,9 +22,10 @@ class RaidSavingService {
 
     INVALID_DATETIME_ERROR = "INVALID_DATETIME";
 
-    constructor(messageFetcher, raidRepository) {
+    constructor(messageFetcher, raidRepository, raidSchedulersManager) {
         this.messageFetcher = messageFetcher;
         this.raidRepository = raidRepository;
+        this.raidSchedulersManager = raidSchedulersManager;
     }
 
     async handleRaidInteraction(interaction) {
@@ -57,10 +58,11 @@ class RaidSavingService {
 
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails !== null) {
-            this.#editRaid(interaction, raidDetails, raidParameters);
+            await this.#editRaid(interaction, raidDetails, raidParameters);
         } else {
-            this.#createRaid(interaction, raidParameters);
+            await this.#createRaid(interaction, raidParameters);
         }
+        this.raidSchedulersManager.refreshChannelSchedulers(interaction.channel.id);
     }
 
     async #extractRaidParametersFromInteraction(interaction) {

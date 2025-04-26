@@ -9,6 +9,11 @@ export { RaidDetailsRepository };
 class RaidDetailsRepository {
     
     /**
+     * Returns list of all raid details.
+     */
+    getAll() {}
+
+    /**
      * Returns either RaidDetails or null.
      */
     getByChannelId(channelId) {} 

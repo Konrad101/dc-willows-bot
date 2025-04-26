@@ -38,15 +38,16 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
         await this.db.sync();
     }
 
+    async getAll() {
+        const serializedDetailsList = await this.raidDetailsDao.findAll();
+        const deserializedDetails = serializedDetailsList
+            .map(serializedDetails => this.#deserializeSavedRaidDetails(serializedDetails));
+        return await Promise.all(deserializedDetails);
+    }
+
     async getByChannelId(channelId) {
         const savedRaidDetails = await this.raidDetailsDao.findByPk(channelId);
-        if (savedRaidDetails === null) return null;
-        
-        return new RaidDetails(
-            channelId,
-            savedRaidDetails.messageId,
-            await this.#createEmbedderFromDetails(savedRaidDetails),
-        );
+        return await this.#deserializeSavedRaidDetails(savedRaidDetails);
     }
 
     async save(raidDetails) {
@@ -73,6 +74,16 @@ class SqliteRaidDetailsRepository extends RaidDetailsRepository {
         if (raidDetails !== null) {
             await raidDetails.destroy();
         }
+    }
+
+    async #deserializeSavedRaidDetails(savedRaidDetails) {
+        if (savedRaidDetails === null) return null;
+        
+        return new RaidDetails(
+            savedRaidDetails.channelId,
+            savedRaidDetails.messageId,
+            await this.#createEmbedderFromDetails(savedRaidDetails),
+        );
     }
 
     async #createEmbedderFromDetails(savedRaidDetails) {

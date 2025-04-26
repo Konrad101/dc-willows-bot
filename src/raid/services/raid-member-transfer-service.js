@@ -74,7 +74,7 @@ class RaidMemberTransferService {
             message.edit({ embeds: [ raidDetails.embedder.refreshEmbedder() ] });
             this.raidRepository.save(raidDetails);
         } else {
-            console.log(`Could not fetch details during singup for message with id ${raidDetails.messageId}`);
+            console.log(`Could not fetch message with id: ${raidDetails.messageId} during member transfer`);
         }
 
         await interaction.deleteReply();

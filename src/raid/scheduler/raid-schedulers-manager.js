@@ -1,0 +1,117 @@
+import { scheduleJob } from 'node-schedule';
+import { DateTime, Duration } from 'luxon';
+
+import { ScheduledRaidJobs } from './scheduled-raid-jobs.js';
+import { RaidDMReminder } from './raid-dm-reminder.js';
+import { RaidEndOfPriorityNotifier } from './raid-end-of-priority-notifier.js';
+
+export { RaidSchedulersManager };
+
+class RaidSchedulersManager {
+
+    constructor(raidDetailsRepository, 
+                messageFetcher,
+                client,
+                guildId) {
+
+        // Map<channelId: string, scheduledRaidJobs: ScheduledRaidJobs>  
+        this.scheduledRaidJobsByChannel = new Map();
+
+        this.raidDetailsRepository = raidDetailsRepository;
+        this.messageFetcher = messageFetcher;
+        this.raidEndOfPriorityNotifier = new RaidEndOfPriorityNotifier(client);
+        this.raidDMReminder = new RaidDMReminder(client, guildId);
+    }
+
+    async refreshSchedulers() {
+        console.log("Refreshing all raids schedulers..");
+        const allRaidDetails = await this.raidDetailsRepository.getAll();
+        if (allRaidDetails.length > 0) {
+            allRaidDetails.forEach(raidDetails => this.#refreshSchedulersFromRaidDetails(raidDetails));
+        } else {
+            this.#cancelAllJobs();
+        }
+    }
+
+    async refreshChannelSchedulers(channelId) {
+        this.#refreshSchedulersFromRaidDetails(
+            await this.raidDetailsRepository.getByChannelId(channelId)
+        );
+    }
+
+    cancelChannelSchedulers(channelId) {
+        const scheduledRaidJobs = this.scheduledRaidJobsByChannel.get(channelId);
+        if (scheduledRaidJobs !== undefined) {
+            scheduledRaidJobs.jobs.forEach(job => job?.cancel());
+        }
+    }
+
+    #cancelAllJobs() {
+        for (const [key, value] of this.scheduledRaidJobsByChannel) {
+            value.jobs.forEach(job => job?.cancel());
+        }
+        this.scheduledRaidJobsByChannel.clear();
+    }
+
+    #refreshSchedulersFromRaidDetails(raidDetails) {
+        if (raidDetails === null) return;
+
+        const scheduledRaidJobs = this.scheduledRaidJobsByChannel.get(raidDetails.channelId);
+        const timestampAfterUpdate = raidDetails.embedder.raidParameters.startTimestamp;
+        if (scheduledRaidJobs?.raidsTimestamp === timestampAfterUpdate) return;
+        
+        this.cancelChannelSchedulers(raidDetails.channelId);
+
+        const autoDeletionJob = this.#createAutoDeletionJob(timestampAfterUpdate, 
+            raidDetails.channelId, raidDetails.messageId);
+        const endOfPriorityJob = this.#createEndOfPriorityJob(timestampAfterUpdate, 
+            raidDetails.channelId);
+        const reminderJob = this.#createReminderJob(timestampAfterUpdate, raidDetails.channelId);
+
+        this.scheduledRaidJobsByChannel.set(
+            raidDetails.channelId, 
+            new ScheduledRaidJobs(timestampAfterUpdate, [ autoDeletionJob, endOfPriorityJob, reminderJob ])
+        );
+    }
+
+    #createEndOfPriorityJob(raidsTimestamp, channelId) {
+        const oneDay = Duration.fromISO('PT24H').toObject();
+        const raidDateTime = DateTime.fromMillis(raidsTimestamp);
+        return scheduleJob(
+            raidDateTime.minus(oneDay).toMillis(), 
+            () => {
+                console.log(`[scheduled] notifying about end of priority on channel: ${channelId}`);
+                this.raidEndOfPriorityNotifier.notify(channelId);
+            }
+        );
+    }
+
+    #createAutoDeletionJob(raidsTimestamp, channelId, messageId) {
+        const sevenDays = Duration.fromISO('P7D').toObject();
+        const raidDateTime = DateTime.fromMillis(raidsTimestamp);
+        console.log(`Scheduled deletion at: ${raidDateTime.plus(sevenDays).toMillis()}`);
+        return scheduleJob(
+            raidDateTime.plus(sevenDays).toMillis(), 
+            () => {
+                console.log(`[scheduled] auto deletion of raids list from channel: ${channelId}`);
+                this.raidDetailsRepository.deleteByChannelId(channelId);
+                this.messageFetcher.fetchMessageFromChannel(messageId, channelId)
+                    ?.edit({ content: "🗑️ Zapisy na rajdy zostały usunięte automatycznie", embeds: [], components: [] });
+            }
+        );
+    }
+
+    #createReminderJob(raidsTimestamp, channelId) {
+        const reminderTimeBeforeRaid = Duration.fromISO('PT30M').toObject();
+        const raidDateTime = DateTime.fromMillis(raidsTimestamp);
+        return scheduleJob(
+            raidDateTime.minus(reminderTimeBeforeRaid).toMillis(), 
+            async () => {
+                console.log(`[scheduled] sending DMs with reminder about raids for channel: ${channelId}`);
+                const raidDetails = await this.raidDetailsRepository.getByChannelId(channelId)
+                this.raidDMReminder.remindAboutRaid(raidDetails);
+            }
+        );
+    }
+
+}

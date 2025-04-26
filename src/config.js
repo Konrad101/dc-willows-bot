@@ -1,6 +1,6 @@
 
 export { 
-    RESERVE_ROLES, RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES,
+    RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES,
     WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU,
     MEMBERS_BATCH_SIZE, EMBEDDER_COLOR,
     DB_FILE_PATH
@@ -8,9 +8,6 @@ export {
 
 // ----------------------------
 //  Konfiguracja dostępu i ról. 
-
-//  Role, które będą trafiać na rezerwę. 
-const RESERVE_ROLES = [ "Warn" ];
 
 //  Role do zarządzania rajdem:
 //  - tworzenie rajdów

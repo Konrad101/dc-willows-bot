@@ -8,9 +8,10 @@ export { RaidCancellationService };
 
 class RaidCancellationService {
 
-    constructor(messageFetcher, raidRepository) {
+    constructor(messageFetcher, raidRepository, raidSchedulersManager) {
         this.messageFetcher = messageFetcher;
         this.raidRepository = raidRepository;
+        this.raidSchedulersManager = raidSchedulersManager;
     }
 
     async cancelRaid(interaction) {
@@ -41,6 +42,7 @@ class RaidCancellationService {
         await this.raidRepository.deleteByChannelId(interaction.channel.id);
         await this.messageFetcher.fetchMessageFromChannel(raidDetails.messageId, raidDetails.channelId)
             ?.delete();
+        this.raidSchedulersManager.cancelChannelSchedulers(interaction.channel.id);
 
         await interaction.deleteReply();
     }

@@ -45,11 +45,11 @@ class RaidInteractionHandler extends InteractionHandler {
         WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, MAGE_MENU_ID_RESERVE, MARTIAL_ARTIST_MENU_ID_RESERVE,
     ];
 
-    constructor(messageFetcher, raidRepository) {
+    constructor(messageFetcher, raidRepository, raidSchedulersManager) {
         super();
-        this.raidSavingService = new RaidSavingService(messageFetcher, raidRepository);
+        this.raidSavingService = new RaidSavingService(messageFetcher, raidRepository, raidSchedulersManager);
         this.raidUnsubscribingService = new RaidUnsubscribingService(messageFetcher, raidRepository);
-        this.raidCancellationService = new RaidCancellationService(messageFetcher, raidRepository);
+        this.raidCancellationService = new RaidCancellationService(messageFetcher, raidRepository, raidSchedulersManager);
         this.raidMemberSignupService = new RaidMemberSignupService(messageFetcher, raidRepository);
         this.raidSpecialistSelectionService = new RaidSpecialistSelectionService();
         this.raidMemberKickingService = new RaidMemberKickingService(messageFetcher, raidRepository);

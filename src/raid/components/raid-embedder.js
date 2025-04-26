@@ -74,7 +74,7 @@ class RaidEmbedder {
 
     #formatRaidDateTime() {
         const raidDateTime = DateTime.fromMillis(this.raidParameters.startTimestamp);
-        return raidDateTime.setLocale("pl").toFormat("dd MMMM yyyy, HH:mm");
+        return raidDateTime.setLocale("pl").toFormat("dd.MM.yyyy, HH:mm");
     }
 
     #createRaidMembersFields(fieldName, raidMembers, maxPlayers) {

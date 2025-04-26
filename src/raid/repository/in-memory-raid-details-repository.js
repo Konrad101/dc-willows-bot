@@ -9,6 +9,10 @@ class InMemoryRaidDetailsRepository extends RaidDetailsRepository {
         this.raidDetailsMap = new Map();
     }
 
+    getAll() {
+        return this.raidDetailsMap.values();
+    }
+
     getByChannelId(channelId) {
         const raidDetails = this.raidDetailsMap.get(channelId);
         return raidDetails !== undefined ? raidDetails : null;
