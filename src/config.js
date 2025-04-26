@@ -3,8 +3,9 @@ export {
     RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES,
     WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU,
     MEMBERS_BATCH_SIZE, EMBEDDER_COLOR,
+    END_OF_PRIORITY_DURATION, REMINDER_BEFORE_RAID_EXECUTION_DURATION, EXPIRED_RAIDS_DURATION,
     DB_FILE_PATH
- };
+};
 
 // ----------------------------
 //  Konfiguracja dostępu i ról. 
@@ -106,6 +107,26 @@ const MEMBERS_BATCH_SIZE = 2;
 
 // Kolor paska po lewej stronie embeddera w wartości heksadecymalnej.
 const EMBEDDER_COLOR = 0x9400FF;
+
+
+// ----------------------------
+// Konfiguracja czasów trwania.
+// Czasy trwania w formacie: 
+// Format: P liczba Y / M / W / D - analogicznie lata / miesiące / tygodnie / dni
+// np. P2M3D to 2 miesiące i 3 dni.
+// Format: PT liczba H / M / S - analogicznie godziny / minuty / sekundy
+// np. PT3H55M to 3 godziny i 55 minut.
+// Można też łączyć dni i lata z godzinami,
+// np. P3Y6M1W4DT12H30M5S to 3 lata, 6 miesięcy, 1 tydzień, 4 dni, 12 godzin, 30 minut i 5 sekund.
+
+// Przez ile czasu od startu rajdów zapisy mają być zwolnione z priorytetu.
+const END_OF_PRIORITY_DURATION = "PT24H";
+
+// Na jaki czas przed startem rajdów ma zostać wysłany DM do każdego uczestnika rajdu.
+const REMINDER_BEFORE_RAID_EXECUTION_DURATION = "PT30M";
+
+// Po jakim czasie rajdy mają się automatycznie usuwać licząc od daty rajdów.
+const EXPIRED_RAIDS_DURATION = "P7D";
 
 
 // ------------------------------------

@@ -4,6 +4,7 @@ import { DateTime, Duration } from 'luxon';
 import { ScheduledRaidJobs } from './scheduled-raid-jobs.js';
 import { RaidDMReminder } from './raid-dm-reminder.js';
 import { RaidEndOfPriorityNotifier } from './raid-end-of-priority-notifier.js';
+import { END_OF_PRIORITY_DURATION, REMINDER_BEFORE_RAID_EXECUTION_DURATION, EXPIRED_RAIDS_DURATION } from '../../config.js';
 
 export { RaidSchedulersManager };
 
@@ -75,10 +76,10 @@ class RaidSchedulersManager {
     }
 
     #createEndOfPriorityJob(raidsTimestamp, channelId) {
-        const oneDay = Duration.fromISO('PT24H').toObject();
+        const endOfPriorityDuration = Duration.fromISO(END_OF_PRIORITY_DURATION).toObject();
         const raidDateTime = DateTime.fromMillis(raidsTimestamp);
         return scheduleJob(
-            raidDateTime.minus(oneDay).toMillis(), 
+            raidDateTime.minus(endOfPriorityDuration).toMillis(), 
             () => {
                 console.log(`[scheduled] notifying about end of priority on channel: ${channelId}`);
                 this.raidEndOfPriorityNotifier.notify(channelId);
@@ -87,11 +88,10 @@ class RaidSchedulersManager {
     }
 
     #createAutoDeletionJob(raidsTimestamp, channelId, messageId) {
-        const sevenDays = Duration.fromISO('P7D').toObject();
+        const autoDeletionDuration = Duration.fromISO(EXPIRED_RAIDS_DURATION).toObject();
         const raidDateTime = DateTime.fromMillis(raidsTimestamp);
-        console.log(`Scheduled deletion at: ${raidDateTime.plus(sevenDays).toMillis()}`);
         return scheduleJob(
-            raidDateTime.plus(sevenDays).toMillis(), 
+            raidDateTime.plus(autoDeletionDuration).toMillis(), 
             () => {
                 console.log(`[scheduled] auto deletion of raids list from channel: ${channelId}`);
                 this.raidDetailsRepository.deleteByChannelId(channelId);
@@ -102,7 +102,7 @@ class RaidSchedulersManager {
     }
 
     #createReminderJob(raidsTimestamp, channelId) {
-        const reminderTimeBeforeRaid = Duration.fromISO('PT30M').toObject();
+        const reminderTimeBeforeRaid = Duration.fromISO(REMINDER_BEFORE_RAID_EXECUTION_DURATION).toObject();
         const raidDateTime = DateTime.fromMillis(raidsTimestamp);
         return scheduleJob(
             raidDateTime.minus(reminderTimeBeforeRaid).toMillis(), 

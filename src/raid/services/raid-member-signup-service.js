@@ -3,7 +3,7 @@ import { DateTime, Duration } from 'luxon';
 
 import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
 import { memberFromInteraction } from '../raid-member.js';
-import { SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES } from '../../config.js';
+import { SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES, END_OF_PRIORITY_DURATION } from '../../config.js';
 
 export { RaidMemberSignupService };
 
@@ -79,7 +79,7 @@ class RaidMemberSignupService {
 
     async #priorityIsOnForRaid(raidDetails) {
         const raidStartTimestamp = raidDetails.embedder.raidParameters.startTimestamp;
-        const zeroPriorityDuration = Duration.fromObject({ hours: 24 });
+        const zeroPriorityDuration = Duration.fromISO(END_OF_PRIORITY_DURATION);
         return raidStartTimestamp > DateTime.now().plus(zeroPriorityDuration).toMillis();
     }
 

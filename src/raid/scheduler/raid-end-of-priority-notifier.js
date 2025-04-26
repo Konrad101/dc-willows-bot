@@ -8,6 +8,6 @@ class RaidEndOfPriorityNotifier {
 
     notify(channelId) {
         this.client.channels.cache.get(channelId)
-            .send("@everyone Koniec priorytetu! Wszyscy mogą się zapisać na główną listę 📝");
+            .send("@everyone **Koniec priorytetu!** Wszyscy mogą się zapisać na główną listę 📝");
     }
 }
