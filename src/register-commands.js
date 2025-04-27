@@ -9,6 +9,7 @@ import {
 import { 
     TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_BUILDER, TRANSFER_MEMBER_FROM_RESERVE_COMMAND_BUILDER 
 } from './raid/commands/raid-member-transfer-commands.js';
+import { RAID_COMMAND_PROVIDER_COMMAND_BUILDER } from './raid/commands/raid-command-provider-commands.js';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const commands = [
     RESERVE_SQUAD_MEMBER_DELETION_COMMAND_BUILDER.toJSON(),
     TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_BUILDER.toJSON(),
     TRANSFER_MEMBER_FROM_RESERVE_COMMAND_BUILDER.toJSON(),
+    RAID_COMMAND_PROVIDER_COMMAND_BUILDER.toJSON(),
 ];
 
 const rest = new REST({version: '10'})

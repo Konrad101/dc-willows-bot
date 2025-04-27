@@ -18,7 +18,7 @@ class RaidCancellationService {
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
         if (raidDetails === null) {
             console.log(
-                `Could not find details to cancel raid for channel: ${interaction.channel.id}, ` +
+                `Could not find details to cancel raids for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`
             );
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });

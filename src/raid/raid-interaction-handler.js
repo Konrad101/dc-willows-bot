@@ -6,6 +6,7 @@ import {
 import { 
     TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME, TRANSFER_MEMBER_FROM_RESERVE_COMMAND_NAME 
 } from './commands/raid-member-transfer-commands.js';
+import { RAID_COMMAND_PROVIDER_COMMAND_NAME } from './commands/raid-command-provider-commands.js';
 import { 
     SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID, 
     SIGN_RESERVE_SQUAD_BUTTON_ID, UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID,
@@ -16,6 +17,7 @@ import { RaidCancellationService } from './services/raid-cancellation-service.js
 import { RaidMemberSignupService } from './services/raid-member-signup-service.js';
 import { RaidMemberKickingService } from './services/raid-member-kicking-service.js';
 import { RaidMemberTransferService } from './services/raid-member-transfer-service.js';
+import { RaidCommandDisplayingService } from './services/raid-command-displaying-service.js';
 import { 
     RaidSpecialistSelectionService, WARRIOR_MENU_ID, ARCHER_MENU_ID, MAGE_MENU_ID, 
     MARTIAL_ARTIST_MENU_ID, WARRIOR_MENU_ID_RESERVE, ARCHER_MENU_ID_RESERVE, 
@@ -32,7 +34,8 @@ class RaidInteractionHandler extends InteractionHandler {
         // commands
         RAID_SAVING_COMMAND_NAME, RAID_CANCELLATION_COMMAND_NAME, 
         MAIN_SQUAD_MEMBER_DELETION_COMMAND_NAME, RESERVE_SQUAD_MEMBER_DELETION_COMMAND_NAME,
-        TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME, TRANSFER_MEMBER_FROM_RESERVE_COMMAND_NAME 
+        TRANSFER_MEMBER_FROM_MAIN_SQUAD_COMMAND_NAME, TRANSFER_MEMBER_FROM_RESERVE_COMMAND_NAME,
+        RAID_COMMAND_PROVIDER_COMMAND_NAME
     ];
 
     RAID_INTERACTIONS_CUSTOM_IDS = [ 
@@ -54,6 +57,7 @@ class RaidInteractionHandler extends InteractionHandler {
         this.raidSpecialistSelectionService = new RaidSpecialistSelectionService();
         this.raidMemberKickingService = new RaidMemberKickingService(messageFetcher, raidRepository);
         this.raidMemberTransferService = new RaidMemberTransferService(messageFetcher, raidRepository);
+        this.raidCommandDisplayingService = new RaidCommandDisplayingService(raidRepository);
     }
 
     handle(interaction) {
@@ -87,6 +91,8 @@ class RaidInteractionHandler extends InteractionHandler {
             this.raidMemberTransferService.transferMainSquadMemberToReserve(interaction);
         } else if (interaction.commandName === TRANSFER_MEMBER_FROM_RESERVE_COMMAND_NAME) {
             this.raidMemberTransferService.transferReserveMemberToMainSquad(interaction);
+        } else if (interaction.commandName === RAID_COMMAND_PROVIDER_COMMAND_NAME) {
+            this.raidCommandDisplayingService.displayCurrentRaidCommand(interaction);            
         }
     }
 
