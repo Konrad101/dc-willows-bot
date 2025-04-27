@@ -23,17 +23,21 @@ class RaidCommandDisplayingService {
 
         const raidParameters = raidDetails.embedder.raidParameters;
         const raidDateTime = DateTime.fromMillis(raidParameters.startTimestamp).setZone(TIME_ZONE_CODE);
-        const raidCommand = `/rajdy ` + 
+        let raidCommand = `/rajdy ` + 
             `jakie-rajdy: ${raidParameters.whatRaid} ` + 
             `dzien: ${raidDateTime.toFormat("dd.MM.yyyy")} ` +
             `godzina: ${raidDateTime.toFormat("HH:mm")} ` +
             `czas-trwania: ${raidParameters.duration} ` +
             `lider: <@${raidParameters.leaderId}> ` + 
             `gdzie-i-kiedy-zbiorka: ${raidParameters.gathering} ` +
-            `odpal: ${raidParameters.buffs} ` + 
-            `wymagania: ${raidParameters.requirements} ` + 
             `max-liczba-osob: ${raidParameters.mainSquadMaxPlayers} ` +
             `rezerwa-max-liczba-osob: ${raidParameters.reserveSquadMaxPlayers} `;
+        if (raidParameters.buffs !== undefined) {
+            raidCommand += `odpal: ${raidParameters.buffs} `;
+        }
+        if (raidParameters.requirements !== undefined) {
+            raidCommand += `wymagania: ${raidParameters.requirements} `;
+        }
 
         interaction.reply({
             content: `> ${raidCommand}`,
