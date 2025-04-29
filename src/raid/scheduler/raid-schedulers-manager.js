@@ -3,7 +3,7 @@ import { DateTime, Duration } from 'luxon';
 
 import { ScheduledRaidJobs } from './scheduled-raid-jobs.js';
 import { RaidDMReminder } from './raid-dm-reminder.js';
-import { RaidEndOfPriorityNotifier } from './raid-end-of-priority-notifier.js';
+import { RaidEndOfPriorityHandler } from './raid-end-of-priority-handler.js';
 import { END_OF_PRIORITY_DURATION, REMINDER_BEFORE_RAID_EXECUTION_DURATION, EXPIRED_RAIDS_DURATION } from '../../config.js';
 
 export { RaidSchedulersManager };
@@ -20,7 +20,7 @@ class RaidSchedulersManager {
 
         this.raidDetailsRepository = raidDetailsRepository;
         this.messageFetcher = messageFetcher;
-        this.raidEndOfPriorityNotifier = new RaidEndOfPriorityNotifier(client);
+        this.raidEndOfPriorityHandler = new RaidEndOfPriorityHandler(client, raidDetailsRepository, messageFetcher);
         this.raidDMReminder = new RaidDMReminder(client, guildId);
     }
 
@@ -80,9 +80,14 @@ class RaidSchedulersManager {
         const raidDateTime = DateTime.fromMillis(raidsTimestamp);
         return scheduleJob(
             raidDateTime.minus(endOfPriorityDuration).toMillis(), 
-            () => {
-                console.log(`[scheduled] notifying about end of priority on channel: ${channelId}`);
-                this.raidEndOfPriorityNotifier.notify(channelId);
+            async () => {
+                console.log(`[scheduled] handling end of priority on channel: ${channelId}`);
+                const raidDetails = await this.raidDetailsRepository.getByChannelId(channelId);
+                if (raidDetails !== null) {
+                    this.raidEndOfPriorityHandler.handle(raidDetails);
+                } else {
+                    console.log(`Could not find details for end of priority handler job on channel: ${channelId}`);
+                }
             }
         );
     }
@@ -108,8 +113,12 @@ class RaidSchedulersManager {
             raidDateTime.minus(reminderTimeBeforeRaid).toMillis(), 
             async () => {
                 console.log(`[scheduled] sending DMs with reminder about raids for channel: ${channelId}`);
-                const raidDetails = await this.raidDetailsRepository.getByChannelId(channelId)
-                this.raidDMReminder.remindAboutRaid(raidDetails);
+                const raidDetails = await this.raidDetailsRepository.getByChannelId(channelId);
+                if (raidDetails !== null) {
+                    this.raidDMReminder.remindAboutRaid(raidDetails);
+                } else {
+                    console.log(`Could not find details for reminder job on channel: ${channelId}`);
+                }
             }
         );
     }

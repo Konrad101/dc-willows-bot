@@ -29,6 +29,10 @@ class RaidMembersList {
         return this.members.length >= this.maxMembers;
     }
 
+    isEmpty() {
+        return this.members.length == 0;
+    }
+
     getMembers() {
         return this.members;
     }
