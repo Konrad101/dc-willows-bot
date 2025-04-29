@@ -29,8 +29,16 @@ class RaidMemberSignupService {
 
     async #signupRaidMember(interaction, mainSquadSignup) {
         const raidDetails = await this.raidRepository.getByChannelId(interaction.channel.id);
-        if (!await this.#validateIfSignupCanBePerformed(interaction, raidDetails, mainSquadSignup)) {
+        if (!await this.#validateIfSignupCanBePerformed(interaction, raidDetails)) {
             return;
+        }
+
+        if (mainSquadSignup &&
+            await this.#priorityIsOnForRaid(raidDetails) &&
+            !await interactionUserHasValidRoles(interaction, RAIDS_PRIORITY_ROLES)) {
+
+            console.log("Changing signup from main squad to reserve due to ongoing priority")
+            mainSquadSignup = false;
         }
 
         const squadList = mainSquadSignup ? 
@@ -44,7 +52,7 @@ class RaidMemberSignupService {
      * Returns true if validation passed successfully,
      * otherwise returns false.
      */
-    async #validateIfSignupCanBePerformed(interaction, raidDetails, mainSquadSignup) {
+    async #validateIfSignupCanBePerformed(interaction, raidDetails) {
         if (raidDetails === null) {
             console.log(`Could not find details to signup for channel: ${interaction.channel.id}, ` +
                 `trigger user id: ${interaction.user.id}`);
@@ -60,17 +68,6 @@ class RaidMemberSignupService {
                 content: "Brak uprawnień do zapisania się na rajdy!",
                 flags: MessageFlags.Ephemeral,
             });
-            return false;
-        } else if (mainSquadSignup && 
-            await this.#priorityIsOnForRaid(raidDetails) &&
-            !await interactionUserHasValidRoles(interaction, RAIDS_PRIORITY_ROLES)) {
-            
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-            interaction.webhook.editMessage(interaction.message, {
-                content: "Brak możliwości zapisu na główną listę, trwa priorytet!",
-                components: [],
-            });
-            await interaction.deleteReply();
             return false;
         }
 
