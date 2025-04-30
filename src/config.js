@@ -33,7 +33,7 @@ const RAIDS_PRIORITY_ROLES = [ "Famowicz" ];
 //  3. labelki (tekst, co się wyświetli przy ikonce)
 
 const WARRIOR_SELECT_MENU = {
-    placeholder: "SP wojownika",
+    placeholder: "wojownik / warrior",
     specialists: [
         { id: "1292183221584400617", name: "warsp1", label: "SP 1" },
         { id: "1136228232367198208", name: "warsp2", label: "SP 2" },
@@ -50,7 +50,7 @@ const WARRIOR_SELECT_MENU = {
 };
 
 const ARCHER_SELECT_MENU = {
-    placeholder: "SP łucznika",
+    placeholder: "łucznik / archer",
     specialists: [
         { id: "1136227772273012798", name: "archsp1", label: "SP 1" },
         { id: "1136227802954346578", name: "archsp2", label: "SP 2" },
@@ -67,7 +67,7 @@ const ARCHER_SELECT_MENU = {
 };
 
 const MAGE_SELECT_MENU = {
-    placeholder: "SP maga",
+    placeholder: "mag / mage",
     specialists: [
         { id: "1136228004826206398", name: "magsp1", label: "SP 1" },
         { id: "1136228034203107368", name: "magsp2", label: "SP 2" },
@@ -84,7 +84,7 @@ const MAGE_SELECT_MENU = {
 };
 
 const MARTIAL_ARTIST_SELECT_MENU = {
-    placeholder: "SP MSW",
+    placeholder: "mistrz sztuk walki / martial artist",
     specialists: [
         { id: "1292188005796286487", name: "mswsp1", label: "SP 1" },
         { id: "1292188003556393041", name: "mswsp2", label: "SP 2" },

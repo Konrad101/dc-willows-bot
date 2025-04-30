@@ -19,7 +19,9 @@ class RaidDMReminder {
     async #remindUserAboutRaid(userId, raidsMessageLink) {
         this.messageSender.sendDmMessage(
             userId,
-            `🔔⏰ Zaraz rajdy - jesteś na głównej liście!\nLink do listy: ${raidsMessageLink}`
+            `🔔⏰ Zaraz rajdy - jesteś na głównej liście! / ` +
+            `Raids starting soon - you're on the main squad!\n` + 
+            `Link: ${raidsMessageLink}`
         );
     }
 }

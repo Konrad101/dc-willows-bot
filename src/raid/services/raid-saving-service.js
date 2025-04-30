@@ -99,31 +99,31 @@ class RaidSavingService {
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId("mainSquadInfoButton")
-                        .setLabel('>> Główny skład <<')
+                        .setLabel('| Główny skład / Main squad |')
                         .setStyle(ButtonStyle.Secondary)
                         .setDisabled(true),
                     new ButtonBuilder()
                         .setCustomId(SIGN_MAIN_SQUAD_BUTTON_ID)
-                        .setLabel('Zapisz się')
+                        .setLabel('Zapisz się / Sign in')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
                         .setCustomId(UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID)
-                        .setLabel('Wypisz się')
+                        .setLabel('Wypisz się / Unsubscribe')
                         .setStyle(ButtonStyle.Danger)
                 ),
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId("reserveSquadInfoButton")
-                        .setLabel('>>>> Rezerwa <<<<')
+                        .setLabel('| Rezerwa           / Reserve          |')
                         .setStyle(ButtonStyle.Secondary)
                         .setDisabled(true),
                     new ButtonBuilder()
                         .setCustomId(SIGN_RESERVE_SQUAD_BUTTON_ID)
-                        .setLabel('Zapisz się')
+                        .setLabel('Zapisz się / Sign in')
                         .setStyle(ButtonStyle.Primary),
                     new ButtonBuilder()
                         .setCustomId(UNSUBSCRIBE_RESERVE_SQUAD_BUTTON_ID)
-                        .setLabel('Wypisz się')
+                        .setLabel('Wypisz się / Unsubscribe')
                         .setStyle(ButtonStyle.Danger)
                 ),
             ],

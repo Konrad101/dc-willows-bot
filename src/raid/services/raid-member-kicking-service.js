@@ -67,8 +67,8 @@ class RaidMemberKickingService {
             await this.raidRepository.save(raidDetails);
             this.messageSender.sendChannelMessage(
                 interaction.channel.id,
-                `💥 Użytkownik <@${interaction.user.id}> wyrzuca z listy użytkownika <@${deletedMember.userId}> / ` +
-                `User <@${interaction.user.id}> is kicking user <@${deletedMember.userId}> from the list`
+                `💥 Użytkownik <@${interaction.user.id}> wyrzuca użytkownika <@${deletedMember.userId}> z ${kickFromMainSquad ? "głównego składu" : "rezerwy"} / ` +
+                `User <@${interaction.user.id}> is kicking user <@${deletedMember.userId}> from the ${kickFromMainSquad ? "main squad" : "reserve"}`
             );
         } else {
             console.log(`Could not fetch details for message with id ${raidDetails.messageId}`);

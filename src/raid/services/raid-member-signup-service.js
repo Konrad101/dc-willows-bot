@@ -38,7 +38,7 @@ class RaidMemberSignupService {
             await this.#priorityIsOnForRaid(raidDetails) &&
             !await interactionUserHasValidRoles(interaction, RAIDS_PRIORITY_ROLES)) {
 
-            console.log("Changing signup from main squad to reserve due to ongoing priority")
+            console.log("Changing signup from main squad to reserve due to ongoing priority");
             mainSquadSignup = false;
         }
 
@@ -59,14 +59,14 @@ class RaidMemberSignupService {
                 `trigger user id: ${interaction.user.id}`);
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             interaction.webhook.editMessage(interaction.message, {
-                content: "Błąd: nie udało się znaleźć listy do zapisania na rajd!",
+                content: "Błąd: nie udało się znaleźć listy do zapisania na rajd! / Error: could not find list to sign up for raids!",
                 components: [],
             });
             await interaction.deleteReply();
             return false;
         } else if (!await interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
             interaction.reply({
-                content: "Brak uprawnień do zapisania się na rajdy!",
+                content: "Brak uprawnień (ról) do zapisania się na rajdy! / Missing permissions (roles) to sign up for raids!",
                 flags: MessageFlags.Ephemeral,
             });
             return false;
@@ -86,7 +86,7 @@ class RaidMemberSignupService {
         
         if (squadList.isFull()) {
             interaction.webhook.editMessage(interaction.message, {
-                content: "Brak wolnych miejsc, żeby zapisać się na rajd!",
+                content: "Brak wolnych miejsc, żeby zapisać się na rajdy! / No free spots left to join the raids!",
                 components: [],
             });
             await interaction.deleteReply();

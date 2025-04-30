@@ -37,7 +37,7 @@ class RaidSpecialistSelectionService {
     async #displaySpecialistsSelectMenus(interaction, mainSquadSignup) {
         if (!await interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
             interaction.reply({
-                content: "Brak uprawnień do zapisania się na rajdy!",
+                content: "Brak uprawnień (ról) do zapisania się na rajdy! / Missing permissions (roles) to sign up for raids!",
                 flags: MessageFlags.Ephemeral,
             });
             return;

@@ -23,7 +23,7 @@ class RaidEmbedder {
     loadEmbedder() {
         this.embedder = new EmbedBuilder()
             .setColor(EMBEDDER_COLOR)
-            .setAuthor({ name: `${this.author} tworzy zapisy na rajdy!` });
+            .setAuthor({ name: `${this.author} tworzy listę na rajdy! / creates list for raids!` });
         return this.refreshEmbedder();
     }
     
@@ -47,28 +47,28 @@ class RaidEmbedder {
 
     #applyRaidParamsToEmbedder() {
         let embedderFields = [
-            { name: 'Ile czasu:', value: `${this.raidParameters.duration}`, inline: true },
-            { name: 'Lider:', value: `<@${this.raidParameters.leaderId}>`, inline: true },
-            { name: 'Zbiórka:', value: `${this.raidParameters.gathering}`, inline: true },
+            { name: 'Ile czasu/Duration:', value: `${this.raidParameters.duration}`, inline: true },
+            { name: 'Lider/Leader:', value: `<@${this.raidParameters.leaderId}>`, inline: true },
+            { name: 'Zbiórka/Meeting:', value: `${this.raidParameters.gathering}`, inline: true },
         ];
         if (this.raidParameters.buffs !== undefined) {
-            embedderFields.push({ name: 'Odpał:', value: `${this.raidParameters.buffs}` });
+            embedderFields.push({ name: 'Odpał/Boost:', value: `${this.raidParameters.buffs}` });
         }
         if (this.raidParameters.requirements !== undefined) {
-            embedderFields.push({ name: 'Wymagania:', value: `${this.raidParameters.requirements}` });
+            embedderFields.push({ name: 'Wymagania/Requirements:', value: `${this.raidParameters.requirements}` });
         }
         // add blank space between params and lists
         embedderFields.push({ name: '\u200B', value: '\u200B' });
         
         embedderFields = embedderFields.concat(
-            this.#createRaidMembersFields('Główny skład:', this.getMainSquad().getMembers(), this.raidParameters.mainSquadMaxPlayers)
+            this.#createRaidMembersFields('Główny skład/Main squad:', this.getMainSquad().getMembers(), this.raidParameters.mainSquadMaxPlayers)
         );
         embedderFields = embedderFields.concat(
-            this.#createRaidMembersFields('Rezerwa:', this.getReserveSquad().getMembers(), this.raidParameters.reserveSquadMaxPlayers)
+            this.#createRaidMembersFields('Rezerwa/Reserve:', this.getReserveSquad().getMembers(), this.raidParameters.reserveSquadMaxPlayers)
         );
 
         this.embedder
-            .setTitle(`${this.#formatRaidDateTime()} (${TIME_ZONE_LABEL})\nmaraton rajdów: ${this.raidParameters.whatRaid}`)
+            .setTitle(`📅 ${this.#formatRaidDateTime()} (${TIME_ZONE_LABEL})\n👾 rajdy/raids: ${this.raidParameters.whatRaid}`)
             .setFields(embedderFields);
     }
 
@@ -93,7 +93,7 @@ class RaidEmbedder {
 
     #formatRaidMembers(raidMembers, startingIndex, maxPlayers) {
         if (raidMembers.length === 0) {
-            return `\`1. \`➜\` ${maxPlayers}.\` - Brak graczy`;
+            return `\`1. \`➜\` ${maxPlayers}.\` - Brak graczy / Missing players`;
         }
 
         let formattedMembers = "";
@@ -120,9 +120,9 @@ class RaidEmbedder {
 
         if (addMissingPlayersText) {
             if (raidMembers.length === maxPlayers - 1) {
-                formattedMembers += `\`${raidMembers.length + 1}.\` - Brak ostatniego gracza`;
+                formattedMembers += `\`${raidMembers.length + 1}.\` - Brak ostatniego gracza / Missing last player`;
             } else {
-                formattedMembers += `\`${raidMembers.length + 1}. \`➜\` ${maxPlayers}.\` - Brak graczy`;
+                formattedMembers += `\`${raidMembers.length + 1}. \`➜\` ${maxPlayers}.\` - Brak graczy / Missing players`;
             }
         }
         return formattedMembers;

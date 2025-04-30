@@ -11,7 +11,8 @@ class RaidEndOfPriorityHandler {
     async handle(raidDetails) {
         this.messageSender.sendChannelMessage(
             raidDetails.channelId,
-            "@everyone **Koniec priorytetu!** Wszyscy mogą się zapisać na główną listę 📝"
+            "@everyone 📝 **Koniec priorytetu!** Wszyscy mogą się zapisać na główną listę / " + 
+            "**End of priority!** Everyone can join the main squad"
         );
 
         const mainSquad = raidDetails.embedder.getMainSquad();
