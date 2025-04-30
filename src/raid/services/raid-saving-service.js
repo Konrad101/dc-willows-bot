@@ -153,7 +153,7 @@ class RaidSavingService {
             await this.raidRepository.save(raidDetails);
             this.messageSender.sendChannelMessage(
                 interaction.channel.id,
-                "@everyone Szczegóły rajdów zostały edytowane! / Raid details have been edited!"
+                "@everyone Szczegóły rajdów zostały edytowane! / Raids details have been edited!"
             );
         } else {
             console.log(`Could not fetch details on updating raid details for message with id ${raidDetails.messageId}`);
