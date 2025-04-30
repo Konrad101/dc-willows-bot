@@ -22,8 +22,9 @@ class RaidSavingService {
 
     INVALID_DATETIME_ERROR = "INVALID_DATETIME";
 
-    constructor(messageFetcher, raidRepository, raidSchedulersManager) {
+    constructor(messageFetcher, messageSender, raidRepository, raidSchedulersManager) {
         this.messageFetcher = messageFetcher;
+        this.messageSender = messageSender;
         this.raidRepository = raidRepository;
         this.raidSchedulersManager = raidSchedulersManager;
     }
@@ -150,6 +151,10 @@ class RaidSavingService {
         if (message !== null) {
             message.edit({ embeds: [ raidDetails.embedder.updateEmbedder(raidParameters) ] });
             await this.raidRepository.save(raidDetails);
+            this.messageSender.sendChannelMessage(
+                interaction.channel.id,
+                "@everyone Szczegóły rajdów zostały edytowane! / Raid details have been edited!"
+            );
         } else {
             console.log(`Could not fetch details on updating raid details for message with id ${raidDetails.messageId}`);
         }
