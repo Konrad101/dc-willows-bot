@@ -10,8 +10,9 @@ export { RaidMemberSignupService };
 
 class RaidMemberSignupService {
     
-    constructor(messageFetcher, raidRepository) {
+    constructor(messageFetcher, messageSender, raidRepository) {
         this.messageFetcher = messageFetcher;
+        this.messageSender = messageSender;
         this.raidRepository = raidRepository;
     }
 
@@ -97,6 +98,11 @@ class RaidMemberSignupService {
         if (message !== null) {
             message.edit({ embeds: [ raidDetails.embedder.refreshEmbedder() ] });
             this.raidRepository.save(raidDetails);
+            this.messageSender.sendChannelMessage(
+                raidDetails.channelId,
+                `➕ Użytkownik <@${interaction.user.id}> zapisuje się na listę / ` +
+                `User <@${interaction.user.id}> is signing up for the list`
+            );
         } else {
             console.log(`Could not fetch details during singup for message with id ${raidDetails.messageId}`);
         }

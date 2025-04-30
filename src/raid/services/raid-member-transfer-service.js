@@ -8,8 +8,9 @@ export { RaidMemberTransferService };
 
 class RaidMemberTransferService {
 
-    constructor(messageFetcher, raidRepository) {
+    constructor(messageFetcher, messageSender, raidRepository) {
         this.messageFetcher = messageFetcher;
+        this.messageSender = messageSender;
         this.raidRepository = raidRepository;
     }
 
@@ -73,6 +74,13 @@ class RaidMemberTransferService {
         if (message !== null) {
             message.edit({ embeds: [ raidDetails.embedder.refreshEmbedder() ] });
             this.raidRepository.save(raidDetails);
+            this.messageSender.sendChannelMessage(
+                raidDetails.channelId,
+                `🔁 Użytkownik <@${interaction.user.id}> przenosi użytkownika <@${memberToTransfer.userId}> ` +
+                `z ${transferFromMainSquad ? "głównej listy" : "rezerwy"} do ${transferFromMainSquad ? "rezerwy" : "głównej listy"} / ` +
+                `User <@${interaction.user.id}> is transfering user <@${memberToTransfer.userId}> ` +
+                `from ${transferFromMainSquad ? "main squad" : "reserve"} to the ${transferFromMainSquad ? "reserve" : "main squad"}`
+            );
         } else {
             console.log(`Could not fetch message with id: ${raidDetails.messageId} during member transfer`);
         }

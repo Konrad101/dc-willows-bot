@@ -28,7 +28,7 @@ client.on(Events.ClientReady, client => {
     const messageSender = new MessageSender(client);
     const raidSchedulersManager = new RaidSchedulersManager(raidRepository, messageFetcher, messageSender, process.env.GUILD_ID);
     raidSchedulersManager.refreshSchedulers();
-    const raidInteractionHandler = new RaidInteractionHandler(messageFetcher, raidRepository, raidSchedulersManager);
+    const raidInteractionHandler = new RaidInteractionHandler(messageFetcher, messageSender, raidRepository, raidSchedulersManager);
     
     interactionHandlers.push(raidInteractionHandler);
     console.log(`${client.user.tag} is ready!`);

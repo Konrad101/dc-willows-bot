@@ -7,8 +7,9 @@ export { RaidMemberKickingService };
 
 class RaidMemberKickingService {
 
-    constructor(messageFetcher, raidRepository) {
+    constructor(messageFetcher, messageSender, raidRepository) {
         this.messageFetcher = messageFetcher;
+        this.messageSender = messageSender;
         this.raidRepository = raidRepository;
     }
 
@@ -64,6 +65,11 @@ class RaidMemberKickingService {
         if (message !== null) {
             message.edit({ embeds: [ raidDetails.embedder.refreshEmbedder() ] });
             await this.raidRepository.save(raidDetails);
+            this.messageSender.sendChannelMessage(
+                interaction.channel.id,
+                `💥 Użytkownik <@${interaction.user.id}> wyrzuca z listy użytkownika <@${deletedMember.userId}> / ` +
+                `User <@${interaction.user.id}> is kicking user <@${deletedMember.userId}> from the list`
+            );
         } else {
             console.log(`Could not fetch details for message with id ${raidDetails.messageId}`);
         }

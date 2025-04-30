@@ -5,8 +5,9 @@ export { RaidUnsubscribingService };
 
 class RaidUnsubscribingService {
 
-    constructor(messageFetcher, raidRepository) {
+    constructor(messageFetcher, messageSender, raidRepository) {
         this.messageFetcher = messageFetcher;
+        this.messageSender = messageSender;
         this.raidRepository = raidRepository;
     }
 
@@ -55,6 +56,11 @@ class RaidUnsubscribingService {
         if (message !== null) {
             message.edit({ embeds: [ raidDetails.embedder.refreshEmbedder() ] });
             await this.raidRepository.save(raidDetails);
+            this.messageSender.sendChannelMessage(
+                raidDetails.channelId,
+                `➖ Użytkownik <@${interaction.user.id}> wypisuje się z listy / ` + 
+                `User <@${interaction.user.id}> is unsubscribing from the list`
+            );
         } else {
             console.log(`Could not fetch details on unsubscribing for message with id ${raidDetails.messageId}`);
         }
