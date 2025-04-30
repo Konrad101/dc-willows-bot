@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { Client, Events, IntentsBitField } from 'discord.js';
 import { DB_FILE_PATH } from './config.js';
 import { MessageFetcher } from './util/message-fetcher.js';
+import { MessageSender } from './util/message-sender.js';
 import { RaidInteractionHandler } from './raid/raid-interaction-handler.js';
 import { RaidSchedulersManager } from './raid/scheduler/raid-schedulers-manager.js';
 import { SqliteRaidDetailsRepository } from './raid/repository/sqlite-raid-detalis-repository.js';
@@ -24,7 +25,8 @@ const client = new Client({
 
 client.on(Events.ClientReady, client => {
     const messageFetcher = new MessageFetcher(client.guilds.cache.get(process.env.GUILD_ID));
-    const raidSchedulersManager = new RaidSchedulersManager(raidRepository, messageFetcher, client, process.env.GUILD_ID);
+    const messageSender = new MessageSender(client);
+    const raidSchedulersManager = new RaidSchedulersManager(raidRepository, messageFetcher, messageSender, process.env.GUILD_ID);
     raidSchedulersManager.refreshSchedulers();
     const raidInteractionHandler = new RaidInteractionHandler(messageFetcher, raidRepository, raidSchedulersManager);
     

@@ -2,8 +2,8 @@ export { RaidDMReminder };
 
 class RaidDMReminder {
 
-    constructor(client, guildId) {
-        this.client = client;
+    constructor(messageSender, guildId) {
+        this.messageSender = messageSender;
         this.guildId = guildId;
     }
 
@@ -17,8 +17,9 @@ class RaidDMReminder {
     }
 
     async #remindUserAboutRaid(userId, raidsMessageLink) {
-        this.client.users.fetch(userId)
-            .then(user => user.send(`🔔⏰ Zaraz rajdy - jesteś na głównej liście!\nLink do listy: ${raidsMessageLink}`))
-            .catch(console.error);
+        this.messageSender.sendDmMessage(
+            userId,
+            `🔔⏰ Zaraz rajdy - jesteś na głównej liście!\nLink do listy: ${raidsMessageLink}`
+        );
     }
 }

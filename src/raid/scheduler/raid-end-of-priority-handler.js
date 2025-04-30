@@ -2,15 +2,17 @@ export { RaidEndOfPriorityHandler };
 
 class RaidEndOfPriorityHandler {
 
-    constructor(client, raidRepository, messageFetcher) {
-        this.client = client;
+    constructor(messageSender, raidRepository, messageFetcher) {
+        this.messageSender = messageSender;
         this.raidRepository = raidRepository;
         this.messageFetcher = messageFetcher;
     }
 
     async handle(raidDetails) {
-        this.client.channels.cache.get(raidDetails.channelId)
-            .send("@everyone **Koniec priorytetu!** Wszyscy mogą się zapisać na główną listę 📝");
+        this.messageSender.sendChannelMessage(
+            raidDetails.channelId,
+            "@everyone **Koniec priorytetu!** Wszyscy mogą się zapisać na główną listę 📝"
+        );
 
         const mainSquad = raidDetails.embedder.getMainSquad();
         const reserveSquad = raidDetails.embedder.getReserveSquad();

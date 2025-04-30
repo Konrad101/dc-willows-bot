@@ -12,7 +12,7 @@ class RaidSchedulersManager {
 
     constructor(raidDetailsRepository, 
                 messageFetcher,
-                client,
+                messageSender,
                 guildId) {
 
         // Map<channelId: string, scheduledRaidJobs: ScheduledRaidJobs>  
@@ -20,8 +20,8 @@ class RaidSchedulersManager {
 
         this.raidDetailsRepository = raidDetailsRepository;
         this.messageFetcher = messageFetcher;
-        this.raidEndOfPriorityHandler = new RaidEndOfPriorityHandler(client, raidDetailsRepository, messageFetcher);
-        this.raidDMReminder = new RaidDMReminder(client, guildId);
+        this.raidEndOfPriorityHandler = new RaidEndOfPriorityHandler(messageSender, raidDetailsRepository, messageFetcher);
+        this.raidDMReminder = new RaidDMReminder(messageSender, guildId);
     }
 
     async refreshSchedulers() {
