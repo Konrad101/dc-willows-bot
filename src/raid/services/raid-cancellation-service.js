@@ -1,15 +1,16 @@
 import { MessageFlags } from 'discord.js';
 
 import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
-import { RAID_MANAGEMENT_ROLES } from '../../config.js';
+import { RAID_MANAGEMENT_ROLES, RAID_NOTIFICATION_ROLES_IDS } from '../../config.js';
 
 export { RaidCancellationService };
 
 
 class RaidCancellationService {
 
-    constructor(messageFetcher, raidRepository, raidSchedulersManager) {
+    constructor(messageFetcher, messageSender, raidRepository, raidSchedulersManager) {
         this.messageFetcher = messageFetcher;
+        this.messageSender = messageSender;
         this.raidRepository = raidRepository;
         this.raidSchedulersManager = raidSchedulersManager;
     }
@@ -41,7 +42,13 @@ class RaidCancellationService {
         
         await this.raidRepository.deleteByChannelId(interaction.channel.id);
         const message = await this.messageFetcher.fetchMessageFromChannel(raidDetails.messageId, raidDetails.channelId);
-        message?.delete();
+        if (message !== null) {
+            message.delete();
+            this.messageSender.sendChannelMessage(
+                interaction.channel.id,
+                `${RAID_NOTIFICATION_ROLES_IDS.map(r => `<@&${r}>`).join(' ')} 🗑️ Zapisy na rajdy zostały anulowane! / Raid sign-ups are cancelled!`
+            );
+        }
         this.raidSchedulersManager.cancelChannelSchedulers(interaction.channel.id);
 
         await interaction.deleteReply();

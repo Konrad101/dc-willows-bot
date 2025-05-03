@@ -52,7 +52,7 @@ class RaidInteractionHandler extends InteractionHandler {
         super();
         this.raidSavingService = new RaidSavingService(messageFetcher, messageSender, raidRepository, raidSchedulersManager);
         this.raidUnsubscribingService = new RaidUnsubscribingService(messageFetcher, messageSender, raidRepository);
-        this.raidCancellationService = new RaidCancellationService(messageFetcher, raidRepository, raidSchedulersManager);
+        this.raidCancellationService = new RaidCancellationService(messageFetcher, messageSender, raidRepository, raidSchedulersManager);
         this.raidMemberSignupService = new RaidMemberSignupService(messageFetcher, messageSender, raidRepository);
         this.raidSpecialistSelectionService = new RaidSpecialistSelectionService();
         this.raidMemberKickingService = new RaidMemberKickingService(messageFetcher, messageSender, raidRepository);

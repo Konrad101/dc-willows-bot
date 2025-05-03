@@ -1,3 +1,5 @@
+import { RAID_NOTIFICATION_ROLES_IDS } from '../../config.js';
+
 export { RaidEndOfPriorityHandler };
 
 class RaidEndOfPriorityHandler {
@@ -11,7 +13,7 @@ class RaidEndOfPriorityHandler {
     async handle(raidDetails) {
         this.messageSender.sendChannelMessage(
             raidDetails.channelId,
-            "@everyone 📝 **Koniec priorytetu!** / **End of priority!**\n" +
+            `${RAID_NOTIFICATION_ROLES_IDS.map(r => `<@&${r}>`).join(' ')} 📝 **Koniec priorytetu!** / **End of priority!**\n` +
             "* Wszyscy mogą się zapisać na główną listę / Everyone can join the main squad\n" +
             "* Gracze z rezerwy trafili do głównego składu / Reserve players have been transferred to the main squad"
         );
