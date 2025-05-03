@@ -42,10 +42,7 @@ class RaidMemberSignupService {
             mainSquadSignup = false;
         }
 
-        const squadList = mainSquadSignup ? 
-            raidDetails.embedder.getMainSquad() : 
-            raidDetails.embedder.getReserveSquad();
-        this.#performSignupToList(interaction, raidDetails, squadList);
+        this.#performSignupToList(interaction, raidDetails, mainSquadSignup);
     }
 
     /**
@@ -81,8 +78,12 @@ class RaidMemberSignupService {
         return raidStartTimestamp > DateTime.now().plus(zeroPriorityDuration).toMillis();
     }
 
-    async #performSignupToList(interaction, raidDetails, squadList) {
+    async #performSignupToList(interaction, raidDetails, mainSquadSignup) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+        const squadList = mainSquadSignup ? 
+            raidDetails.embedder.getMainSquad() : 
+            raidDetails.embedder.getReserveSquad();
         
         if (squadList.isFull()) {
             interaction.webhook.editMessage(interaction.message, {
@@ -100,8 +101,8 @@ class RaidMemberSignupService {
             this.raidRepository.save(raidDetails);
             this.messageSender.sendChannelMessage(
                 raidDetails.channelId,
-                `➕ Użytkownik <@${interaction.user.id}> zapisuje się na listę / ` +
-                `User <@${interaction.user.id}> is signing up for the list`
+                `➕ Użytkownik <@${interaction.user.id}> zapisuje się na listę ${mainSquadSignup ? "głównego składu" : "rezerwy"} / ` +
+                `User <@${interaction.user.id}> is signing up for the ${mainSquadSignup ? "main squad" : "reserve"} list`
             );
         } else {
             console.log(`Could not fetch details during singup for message with id ${raidDetails.messageId}`);

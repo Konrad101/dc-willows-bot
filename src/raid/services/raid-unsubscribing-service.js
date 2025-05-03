@@ -42,10 +42,10 @@ class RaidUnsubscribingService {
             return;
         }
         
-        this.#removeMemberFromList(interaction, raidDetails, squadList);
+        this.#removeMemberFromList(interaction, raidDetails, squadList, unsubscribeFromMainSquad);
     }
 
-    async #removeMemberFromList(interaction, raidDetails, squadList) {
+    async #removeMemberFromList(interaction, raidDetails, squadList, unsubscribeFromMainSquad) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         squadList.removeMember(interaction.user.id);
@@ -58,8 +58,8 @@ class RaidUnsubscribingService {
             await this.raidRepository.save(raidDetails);
             this.messageSender.sendChannelMessage(
                 raidDetails.channelId,
-                `➖ Użytkownik <@${interaction.user.id}> wypisuje się z listy / ` + 
-                `User <@${interaction.user.id}> is unsubscribing from the list`
+                `➖ Użytkownik <@${interaction.user.id}> wypisuje się z listy ${unsubscribeFromMainSquad ? "głównego składu" : "rezerwy"} / ` + 
+                `User <@${interaction.user.id}> is unsubscribing from the ${unsubscribeFromMainSquad ? "main squad" : "reserve"} list`
             );
         } else {
             console.log(`Could not fetch details on unsubscribing for message with id ${raidDetails.messageId}`);
