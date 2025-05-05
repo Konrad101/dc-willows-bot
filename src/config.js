@@ -1,6 +1,6 @@
 
 export { 
-    RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES, RAID_NOTIFICATION_ROLES_IDS,
+    RAID_MANAGEMENT_ROLES, SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES, RAID_NOTIFICATION_ROLES_IDS, DISMISSED_RAIDS_PRIORITY_ROLES,
     WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU,
     MEMBERS_BATCH_SIZE, EMBEDDER_COLOR, TIME_ZONE_CODE, TIME_ZONE_LABEL,
     END_OF_PRIORITY_DURATION, REMINDER_BEFORE_RAID_EXECUTION_DURATION, EXPIRED_RAIDS_DURATION,
@@ -27,6 +27,8 @@ const RAIDS_PRIORITY_ROLES = [ "Famowicz" ];
 // Role używane do notyfikacji graczy - przy usuwaniu/edycji rajdów oraz końcu priorytetu.
 const RAID_NOTIFICATION_ROLES_IDS = [ "1340257158943739965", "1356683709809426652" ]
 
+// Role przez, które ktoś będzie wykluczony z priorytetu zapisów na rajd.
+const DISMISSED_RAIDS_PRIORITY_ROLES = [ "warn maratonowy" ]
 
 // -------------------------------------------
 //  Konfiguracja do listy z SP'kami do wyboru.
@@ -44,7 +46,6 @@ const WARRIOR_SELECT_MENU = {
         { id: "1136228263816085636", name: "warsp4", label: "SP 4" },
         { id: "1136244449710723092", name: "warsp5", label: "SP 5" },
         { id: "1136244462432038963", name: "warsp6", label: "SP 6" },
-        { id: "1136244476243882025", name: "warsp7", label: "SP 7" },
         { id: "1136228324084031488", name: "warsp8", label: "SP 8" },
         { id: "1136244512218427423", name: "warsp9", label: "SP 9" },
         { id: "1155092148937564190", name: "warsp10", label: "SP 10" },
@@ -80,7 +81,6 @@ const MAGE_SELECT_MENU = {
         { id: "1136244397357412432", name: "magsp6", label: "SP 6" },
         { id: "1136228107330789467", name: "magsp7", label: "SP 7" },
         { id: "1136228122224767006", name: "magsp8", label: "SP 8" },
-        { id: "1136244417766903858", name: "magsp9", label: "SP 9" },
         { id: "1136244358396530709", name: "magsp10", label: "SP 10" },
         { id: "1292183920539996182", name: "magsp11", label: "SP 11" },
     ]
@@ -94,7 +94,6 @@ const MARTIAL_ARTIST_SELECT_MENU = {
         { id: "1292188001262112859", name: "mswsp3", label: "SP 3" },
         { id: "1292187999744032830", name: "mswsp4", label: "SP 4" },
         { id: "1292187997957128315", name: "mswsp5", label: "SP 5" },
-        { id: "1292187995989868646", name: "mswsp6", label: "SP 6" },
         { id: "1292187994085920768", name: "mswsp7", label: "SP 7" },
     ]
 };

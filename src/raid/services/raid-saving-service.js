@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
 import { ButtonStyle, MessageFlags } from 'discord.js';
 import { DateTime } from 'luxon';
 
-import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
+import { interactionUserHasRoles } from '../../util/user-role-checker.js';
 import { RaidEmbedder } from '../components/raid-embedder.js';
 import { RaidDetails } from '../raid-details.js';
 import { RaidParameters } from '../raid-parameters.js';
@@ -30,7 +30,7 @@ class RaidSavingService {
     }
 
     async handleRaidInteraction(interaction) {
-        if (!await interactionUserHasValidRoles(interaction, RAID_MANAGEMENT_ROLES)) {
+        if (!await interactionUserHasRoles(interaction, RAID_MANAGEMENT_ROLES)) {
             interaction.reply({
                 content: "Brak uprawnień do tworzenia/edycji zapisów na rajdy!",
                 flags: MessageFlags.Ephemeral,

@@ -1,9 +1,11 @@
 import { MessageFlags } from 'discord.js';
 import { DateTime, Duration } from 'luxon';
 
-import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
+import { interactionUserHasRoles } from '../../util/user-role-checker.js';
 import { memberFromInteraction } from '../raid-member.js';
-import { SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES, END_OF_PRIORITY_DURATION } from '../../config.js';
+import { 
+    SIGN_TO_RAID_ROLES, RAIDS_PRIORITY_ROLES, DISMISSED_RAIDS_PRIORITY_ROLES, END_OF_PRIORITY_DURATION 
+} from '../../config.js';
 
 export { RaidMemberSignupService };
 
@@ -36,9 +38,14 @@ class RaidMemberSignupService {
 
         if (mainSquadSignup &&
             await this.#priorityIsOnForRaid(raidDetails) &&
-            !await interactionUserHasValidRoles(interaction, RAIDS_PRIORITY_ROLES)) {
+            !await interactionUserHasRoles(interaction, RAIDS_PRIORITY_ROLES)) {
 
             console.log("Changing signup from main squad to reserve due to ongoing priority");
+            mainSquadSignup = false;
+        } else if (mainSquadSignup && 
+            await interactionUserHasRoles(interaction, DISMISSED_RAIDS_PRIORITY_ROLES)) {
+            
+            console.log("Changing signup from main squad to reserve due to dismissed priority role");
             mainSquadSignup = false;
         }
 
@@ -61,7 +68,7 @@ class RaidMemberSignupService {
             });
             await interaction.deleteReply();
             return false;
-        } else if (!await interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
+        } else if (!await interactionUserHasRoles(interaction, SIGN_TO_RAID_ROLES)) {
             interaction.reply({
                 content: "Brak uprawnień (ról) do zapisania się na rajdy! / Missing permissions (roles) to sign up for raids!",
                 flags: MessageFlags.Ephemeral,

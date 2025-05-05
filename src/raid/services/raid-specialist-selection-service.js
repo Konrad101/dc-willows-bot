@@ -2,7 +2,7 @@ import { ActionRowBuilder } from '@discordjs/builders';
 import { MessageFlags } from 'discord.js';
 
 import { RaidMemberSelectMenu } from '../components/raid-member-select-menu.js';
-import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
+import { interactionUserHasRoles } from '../../util/user-role-checker.js';
 import { 
     SIGN_TO_RAID_ROLES, WARRIOR_SELECT_MENU, ARCHER_SELECT_MENU, 
     MAGE_SELECT_MENU, MARTIAL_ARTIST_SELECT_MENU
@@ -35,7 +35,7 @@ class RaidSpecialistSelectionService {
     }
 
     async #displaySpecialistsSelectMenus(interaction, mainSquadSignup) {
-        if (!await interactionUserHasValidRoles(interaction, SIGN_TO_RAID_ROLES)) {
+        if (!await interactionUserHasRoles(interaction, SIGN_TO_RAID_ROLES)) {
             interaction.reply({
                 content: "Brak uprawnień (ról) do zapisania się na rajdy! / Missing permissions (roles) to sign up for raids!",
                 flags: MessageFlags.Ephemeral,

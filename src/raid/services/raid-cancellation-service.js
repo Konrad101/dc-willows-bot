@@ -1,6 +1,6 @@
 import { MessageFlags } from 'discord.js';
 
-import { interactionUserHasValidRoles } from '../../util/user-role-validator.js';
+import { interactionUserHasRoles } from '../../util/user-role-checker.js';
 import { RAID_MANAGEMENT_ROLES, RAID_NOTIFICATION_ROLES_IDS } from '../../config.js';
 
 export { RaidCancellationService };
@@ -26,7 +26,7 @@ class RaidCancellationService {
             await interaction.deleteReply();
             return;
         }
-        if (!await interactionUserHasValidRoles(interaction, RAID_MANAGEMENT_ROLES)) {
+        if (!await interactionUserHasRoles(interaction, RAID_MANAGEMENT_ROLES)) {
             interaction.reply({
                 content: "Brak uprawnień do anulowania rajdów!",
                 flags: MessageFlags.Ephemeral,
