@@ -1,4 +1,4 @@
-import { RAID_NOTIFICATION_ROLES_IDS } from '../../config.js';
+import { extractUniqueRaidMembers } from '../raid-all-members-extractor.js';
 
 export { RaidEndOfPriorityHandler };
 
@@ -13,9 +13,10 @@ class RaidEndOfPriorityHandler {
     async handle(raidDetails) {
         this.messageSender.sendChannelMessage(
             raidDetails.channelId,
-            `${RAID_NOTIFICATION_ROLES_IDS.map(r => `<@&${r}>`).join(' ')} 📝 **Koniec priorytetu!** / **End of priority!**\n` +
+            "📝 **Koniec priorytetu!** / **End of priority!**\n" +
             "* Wszyscy mogą się zapisać na główną listę / Everyone can join the main squad\n" +
-            "* Gracze z rezerwy trafili do głównego składu / Reserve players have been transferred to the main squad"
+            "* Gracze z rezerwy trafili do głównego składu / Reserve players have been transferred to the main squad\n" +
+            `${(await extractUniqueRaidMembers(raidDetails)).map(u => `<@${u}>`).join(' ')}`
         );
 
         const mainSquad = raidDetails.embedder.getMainSquad();

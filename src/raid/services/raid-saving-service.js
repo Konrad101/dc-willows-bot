@@ -3,10 +3,11 @@ import { ButtonStyle, MessageFlags } from 'discord.js';
 import { DateTime } from 'luxon';
 
 import { interactionUserHasRoles } from '../../util/user-role-checker.js';
+import { extractUniqueRaidMembers } from '../raid-all-members-extractor.js';
 import { RaidEmbedder } from '../components/raid-embedder.js';
 import { RaidDetails } from '../raid-details.js';
 import { RaidParameters } from '../raid-parameters.js';
-import { RAID_MANAGEMENT_ROLES, RAID_NOTIFICATION_ROLES_IDS, TIME_ZONE_CODE } from '../../config.js';
+import { RAID_MANAGEMENT_ROLES, TIME_ZONE_CODE } from '../../config.js';
 
 export { 
     RaidSavingService, SIGN_MAIN_SQUAD_BUTTON_ID, UNSUBSCRIBE_MAIN_SQUAD_BUTTON_ID,
@@ -153,7 +154,8 @@ class RaidSavingService {
             await this.raidRepository.save(raidDetails);
             this.messageSender.sendChannelMessage(
                 interaction.channel.id,
-                `${RAID_NOTIFICATION_ROLES_IDS.map(r => `<@&${r}>`).join(' ')} ✏️ Szczegóły rajdów zostały edytowane! / Raids details have been edited!`
+                `✏️ Szczegóły rajdów zostały edytowane! / Raids details have been edited! ` +
+                `${(await extractUniqueRaidMembers(raidDetails)).map(u => `<@${u}>`).join(' ')}`
             );
         } else {
             console.log(`Could not fetch details on updating raid details for message with id ${raidDetails.messageId}`);

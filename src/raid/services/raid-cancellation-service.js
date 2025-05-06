@@ -1,7 +1,8 @@
 import { MessageFlags } from 'discord.js';
 
 import { interactionUserHasRoles } from '../../util/user-role-checker.js';
-import { RAID_MANAGEMENT_ROLES, RAID_NOTIFICATION_ROLES_IDS } from '../../config.js';
+import { extractUniqueRaidMembers } from '../raid-all-members-extractor.js';
+import { RAID_MANAGEMENT_ROLES } from '../../config.js';
 
 export { RaidCancellationService };
 
@@ -46,7 +47,8 @@ class RaidCancellationService {
             message.delete();
             this.messageSender.sendChannelMessage(
                 interaction.channel.id,
-                `${RAID_NOTIFICATION_ROLES_IDS.map(r => `<@&${r}>`).join(' ')} 🗑️ Zapisy na rajdy zostały anulowane! / Raid sign-ups are cancelled!`
+                "🗑️ Zapisy na rajdy zostały anulowane! / Raid sign-ups are cancelled! " +
+                `${(await extractUniqueRaidMembers(raidDetails)).map(u => `<@${u}>`).join(' ')}`
             );
         }
         this.raidSchedulersManager.cancelChannelSchedulers(interaction.channel.id);
