@@ -36,20 +36,23 @@ class RaidMemberSignupService {
             return;
         }
 
+        let changedDueToPriority = false;
         if (mainSquadSignup &&
             await this.#priorityIsOnForRaid(raidDetails) &&
             !await interactionUserHasRoles(interaction, RAIDS_PRIORITY_ROLES)) {
 
             console.log("Changing signup from main squad to reserve due to ongoing priority");
             mainSquadSignup = false;
+            changedDueToPriority = true;
         } else if (mainSquadSignup && 
             await interactionUserHasRoles(interaction, DISMISSED_RAIDS_PRIORITY_ROLES)) {
             
             console.log("Changing signup from main squad to reserve due to dismissed priority role");
             mainSquadSignup = false;
+            changedDueToPriority = true;
         }
 
-        this.#performSignupToList(interaction, raidDetails, mainSquadSignup);
+        this.#performSignupToList(interaction, raidDetails, mainSquadSignup, changedDueToPriority);
     }
 
     /**
@@ -85,7 +88,7 @@ class RaidMemberSignupService {
         return raidStartTimestamp > DateTime.now().plus(zeroPriorityDuration).toMillis();
     }
 
-    async #performSignupToList(interaction, raidDetails, mainSquadSignup) {
+    async #performSignupToList(interaction, raidDetails, mainSquadSignup, changedDueToPriority) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const squadList = mainSquadSignup ? 
@@ -106,11 +109,7 @@ class RaidMemberSignupService {
         if (message !== null) {
             message.edit({ embeds: [ raidDetails.embedder.refreshEmbedder() ] });
             this.raidRepository.save(raidDetails);
-            this.messageSender.sendChannelMessage(
-                raidDetails.channelId,
-                `➕ Użytkownik <@${interaction.user.id}> zapisuje się na listę ${mainSquadSignup ? "głównego składu" : "rezerwy"} / ` +
-                `User <@${interaction.user.id}> is signing up for the ${mainSquadSignup ? "main squad" : "reserve"} list`
-            );
+            this.#sendSingupMessageToChannel(interaction.user.id, raidDetails, mainSquadSignup, changedDueToPriority);
         } else {
             console.log(`Could not fetch details during singup for message with id ${raidDetails.messageId}`);
         }
@@ -119,4 +118,19 @@ class RaidMemberSignupService {
         await interaction.deleteReply();
     }
 
+    async #sendSingupMessageToChannel(userId, raidDetails, mainSquadSignup, changedDueToPriority) {
+        if (changedDueToPriority) {
+            this.messageSender.sendChannelMessage(
+                raidDetails.channelId,
+                `➕ Użytkownik <@${userId}> zostaje zapisany do rezerwy zamiast do głównego składu (trwa priorytet)! / ` +
+                `User <@${userId}> is being placed on the reserve list instead of the main squad (priority is active)!`
+            );
+        } else {
+            this.messageSender.sendChannelMessage(
+                raidDetails.channelId,
+                `➕ Użytkownik <@${userId}> zapisuje się na listę ${mainSquadSignup ? "głównego składu" : "rezerwy"} / ` +
+                `User <@${userId}> is signing up for the ${mainSquadSignup ? "main squad" : "reserve"} list`
+            );
+        }
+    }
 }
