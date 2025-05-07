@@ -44,7 +44,8 @@ class RaidMemberSignupService {
             console.log("Changing signup from main squad to reserve due to ongoing priority");
             mainSquadSignup = false;
             changedDueToPriority = true;
-        } else if (mainSquadSignup && 
+        } else if (mainSquadSignup &&
+            await this.#priorityIsOnForRaid(raidDetails) &&
             await interactionUserHasRoles(interaction, DISMISSED_RAIDS_PRIORITY_ROLES)) {
             
             console.log("Changing signup from main squad to reserve due to dismissed priority role");
