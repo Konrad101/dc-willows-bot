@@ -4,10 +4,10 @@ export { RaidEndOfPriorityHandler };
 
 class RaidEndOfPriorityHandler {
 
-    constructor(messageSender, raidRepository, messageFetcher) {
+    constructor(messageFetcher, messageSender, raidRepository) {
+        this.messageFetcher = messageFetcher;
         this.messageSender = messageSender;
         this.raidRepository = raidRepository;
-        this.messageFetcher = messageFetcher;
     }
 
     async handle(raidDetails) {

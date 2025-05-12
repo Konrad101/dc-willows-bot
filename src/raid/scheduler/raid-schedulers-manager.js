@@ -20,8 +20,8 @@ class RaidSchedulersManager {
 
         this.raidDetailsRepository = raidDetailsRepository;
         this.messageFetcher = messageFetcher;
-        this.raidEndOfPriorityHandler = new RaidEndOfPriorityHandler(messageSender, raidDetailsRepository, messageFetcher);
-        this.raidDMReminder = new RaidDMReminder(messageSender, guildId);
+        this.raidEndOfPriorityHandler = new RaidEndOfPriorityHandler(messageFetcher, messageSender, raidDetailsRepository);
+        this.raidDMReminder = new RaidDMReminder(messageFetcher, messageSender, guildId);
     }
 
     async refreshSchedulers() {
